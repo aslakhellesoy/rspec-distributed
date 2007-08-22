@@ -40,7 +40,8 @@ RUBYFORGE_PROJECT = 'rspec-ext' # The unix name for your project
 HOMEPATH = "http://#{RUBYFORGE_PROJECT}.rubyforge.org"
 
 
-REV = YAML.load(`svn info`)['Revision'] rescue nil
+#REV = YAML.load(`svn info`)['Revision'] rescue nil
+REV=nil
 VERS = Spec::Distributed::VERSION::STRING + (REV ? ".#{REV}" : "")
 CLEAN.include ['**/.*.sw?', '*.gem', '.config', '**/.DS_Store']
 RDOC_OPTS = ['--quiet', '--title', 'spec_distributed documentation',
