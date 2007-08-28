@@ -13,7 +13,7 @@ require 'spec/rake/spectask'
 include FileUtils
 require File.join(File.dirname(__FILE__), 'lib', 'spec', 'distributed', 'version')
 
-AUTHOR = 'Spec::Distributed'
+AUTHOR = 'Aslak Hellesoy'
 EMAIL = 'aslak.hellesoy@gmail.com', 'bob.cotton@rallydev.com'
 DESCRIPTION = "Run RSpec distributed with DRb or Rinda"
 GEM_NAME = 'spec_distributed' # what ppl will type to install your gem
@@ -44,7 +44,7 @@ HOMEPATH = "http://#{RUBYFORGE_PROJECT}.rubyforge.org"
 REV=nil
 VERS = Spec::Distributed::VERSION::STRING + (REV ? ".#{REV}" : "")
 CLEAN.include ['**/.*.sw?', '*.gem', '.config', '**/.DS_Store']
-RDOC_OPTS = ['--quiet', '--title', 'spec_distributed documentation',
+RDOC_OPTS = ['--quiet', '--title', 'Spec::Distributed documentation',
     "--opname", "index.html",
     "--line-numbers", 
     "--main", "README",
@@ -122,7 +122,7 @@ end
 desc "Run specs"
 Spec::Rake::SpecTask.new do |t|
   t.spec_opts = ['--options', "spec/spec.opts"]
-  t.spec_files = FileList['spec/*_spec.rb']
+  t.spec_files = FileList['spec/**/*_spec.rb']
 end
 
 # Hoe insists on setting task :default => :test

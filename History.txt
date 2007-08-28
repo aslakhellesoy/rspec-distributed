@@ -1,2 +1,5 @@
-== 1.2.2 / 2007-07-23
+== 0.0.3 / 2007-07-28
+* Moved the watermark method back to where it belonged
+
+== 0.0.2 / 2007-07-23
 * Initial version, moved from RSpec's subversion.

@@ -77,12 +77,12 @@ module Spec
         end
         dir
       end
+
+      def slave_watermark
+        @url
+      end
     end
 
-    def slave_watermark
-      @url
-    end
-    
     class Dispatcher
       def initialize(*children)
         @children = children
