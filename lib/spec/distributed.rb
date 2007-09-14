@@ -1,4 +1,5 @@
 require 'spec/distributed/version'
+require 'spec/distributed/hooks'
 require 'spec/distributed/master_runner'
 require 'spec/distributed/slave_runner'
 require 'spec/distributed/tuple_args'

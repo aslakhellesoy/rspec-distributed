@@ -1,35 +1,157 @@
 h1. Spec::Distributed
 
-h2. What
+Spec::Distributed makes it possible to run specs in a distributed fashion, in parallel 
+on different slaves. It's something you can consider using when you have a *very* slow 
+RSpec suite (for example using Spec::Ui).
 
+When you use Spec::Distributed you will have one master process, and two or more slave processes.
+The master distributes behaviours (describe blocks) to slaves via DRb.
 
 h2. Installing
 
-<pre syntax="ruby">sudo gem install spec_distributed</pre>
+<pre>sudo gem install spec_distributed</pre>
 
-h2. The basic STUFF
+h2. RubyForge
 
+Spec::Distributed is part of the "RSpec Ext":http://rubyforge.org/projects/rspec-ext project
 
-h2. Demonstration of usage
+h2. Example
 
+Under the <pre>examples</pre> directory there is a file with 4 describe blocks - and it's veery slow (it sleeps). It
+takes 8 seconds to run! However, if you run this in parallel on two slaves it only takes a little over 4 seconds!
 
+You can try out what follows on one machine, but it's more interesting when you use 3 different machines.
+Note that the slaves and masters don't need prior knowledge of each other.
 
-h2. Forum
+h3. Run it the plain slow way
 
-"http://groups.google.com/group/spec_distributed":http://groups.google.com/group/spec_distributed
+  <pre>rake example:plain</pre> # In shell a
+  
+This should take about 8 seconds
 
-TODO - create Google Group - spec_distributed
+h3. Start two slave runners
 
-h2. How to submit patches
+  <pre>rake example:slave</pre> # In shell a
 
-Read the "8 steps for fixing other people's code":http://drnicwilliams.com/2007/06/01/8-steps-for-fixing-other-peoples-code/ and for section "8b: Submit patch to Google Groups":http://drnicwilliams.com/2007/06/01/8-steps-for-fixing-other-peoples-code/#8b-google-groups, use the Google Group above.
+And one more:
 
-The trunk repository is <code>svn://rubyforge.org/var/svn/spec_distributed/trunk</code> for anonymous access.
+  <pre>rake example:slave</pre> # In shell b
 
-h2. License
+h3. Start the master runner
 
-This code is free to use under the terms of the MIT license. 
+  <pre>rake example:master</pre> # In shell c
 
-h2. Contact
+You'll see that this only takes a little over 4 seconds.
 
-Comments are welcome. Send an email to "Spec::Distributed":mailto:aslak.hellesoy@gmail.com.
+Spec::Distributed slaves run in an infinite loop. When they're done running what the master ordered they just sit and wait for more. Try to fire up the master again to see for yourself.
+
+  <pre>rake example:master</pre> # In shell c
+
+h2. Prepare hooks
+
+In practice, slaves and masters will run on different machines. They will also be running against code
+that lives in a source repository such as Subversion. It's common that between each invocation of a master,
+the working copy will have been updated to a newer revision, and it is very important that the slaves be updated
+to the same revision.
+
+Since slaves are running in an infinite loop, the master must have a way to notify waiting slaves to "prepare"
+for the next batch of work. This is done with prepare hooks.
+
+Spec::Distributed comes with a prepare hook that updates each slave's local working copy, but you can of course write
+your own if you're using something else.
+
+h1. Under the hood
+
+Spec::Distributed usies "Rinda":http://www.ruby-doc.org/stdlib/libdoc/rinda/rdoc/index.html for autodiscovery of slaves.
+
+The slave class Spec::Distributed::RindaSlaveRunner will be used in
+conjunction with Spec::Distributed::RindaMasterRunner so that masters
+and slaves may auto-discover each other.
+
+The slave runner will attempt to contact any RingServer on the local
+network. If none exists it will start one. Subsequent slaves will use
+this RingServer to publish themselves.
+
+When the master starts, it will contact the RingServer and query for
+all available slave servers. Then the master will create a thread for
+each available slave.
+
+When the master uses a slave, it removes it from the pool of available
+slaves. The slave will re-publish itself back into the tuplespace
+after running the spec.
+
+h2. Partitioning the Tuplespace
+
+With no additional configuration options passed to either the Master
+or Slave runners the RindaMasterRunner will use all available slaves.
+
+Suppose you have more than one set of masters and slaves running at
+the same time. For example, Bob and Joe want to run a pool of slaves,
+but don't want to share them with each other. One solution would be to
+run seperate RingServers on different ports, but that defeats the
+purpose of auto-discovery.
+
+Both Spec::Distributed::RindaSlaveRunner and
+Spec::Distributed::RindaMasterRunner take an optional list of
+"tuplespace selectors", which are a comma seperated list of strings.
+
+For example, to Joe might start his slaves like this:
+
+  spec examples/*_spec.rb --require spec/distributed --runner Spec::Distributed::RindaSlaveRunner:Joe
+
+Joe would then start his RindaMasterRunner as so:
+
+  spec examples/*_spec.rb --require spec/distributed --runner Spec::Distributed::RindaMasterRunner:Joe
+  
+This master runner will only find slaves that have been configured
+with the same arguments.
+
+Joe may also have several builds he want to test, so he might setup
+two pools of slave servers to run:
+
+  spec examples/*_spec.rb --require spec/distributed --runner Spec::Distributed::RindaSlaveRunner:Joe,1
+
+and
+
+  spec examples/*_spec.rb --require spec/distributed --runner Spec::Distributed::RindaSlaveRunner:Joe,2
+
+Then Joe could create two master runners, one for each build:
+
+  spec examples/*_spec.rb --require spec/distributed --runner Spec::Distributed::RindaMasterRunner:Joe,1
+
+and
+
+  spec examples/*_spec.rb --require spec/distributed --runner Spec::Distributed::RindaMasterRunner:Joe,2
+
+Again, the master runners would only find slaves that have been
+configured with the same parameters.
+
+h2. Wildcarding the Tuplespace
+
+To continue with the example, lets suppose that Bob knows that Joe is
+out to lunch, and wants to use some of his slave runners while he
+gone. Bob has his own slave runners configured similarly to Joe's:
+
+  spec examples/*_spec.rb --require spec/distributed --runner Spec::Distributed::RindaSlaveRunner:Bob,1
+
+and
+
+  spec examples/*_spec.rb --require spec/distributed --runner Spec::Distributed::RindaSlaveRunner:Bob,2
+
+So Bob wants to use all of Joe's (and everyone's) build #2 slave
+servers. So he starts his master runner and passes in a wild-card in
+the first position:
+
+  spec examples/*_spec.rb --require spec/distributed --runner Spec::Distributed::RindaMasterRunner:*,2
+
+This will select all the slave runners that were configured with two
+arguments, and the value of the second argument is 2.
+
+Which is to say, slaves will only be selected if the number of
+"tuplespace selectors" matches, and all of the values match or are a
+wildcard (*). Zero selectors will only match slaves started with zero
+selectors, a single wild-card will only match slaves started with one
+selector.
+
+This can be useful for partitioning seperate builds, platforms, dev
+groups etc.

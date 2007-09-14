@@ -3,8 +3,8 @@ require 'spec/distributed/slave_runner'
 
 module Spec
   module Distributed
-    class MasterRunner < ::Spec::Runner::BehaviourRunner
-      def initialize(options, args=nil)
+    class MasterRunner < ::Spec::Runner::BehaviourRunner      
+      def initialize(options, args="")
         super(options)
         process_args(args)
       end
@@ -16,8 +16,6 @@ module Spec
       
       def run(paths, exit_when_done)
         @master_paths = paths
-        @svn_rev = `svn info`.match(/Revision: (\d+)/m)[1] rescue nil
-        STDERR.puts "WARNING - no local svn revision found. Your slaves may be out of sync." if @svn_rev.nil?
         super(paths, exit_when_done)
       end
       
@@ -27,9 +25,15 @@ module Spec
         index_queue = Queue.new
         @behaviours.length.times {|index| index_queue << index}
 
+        # The master can do some prep work before starting slaves.
+        # It can also send some values (typically related to its prep work)
+        # to the slaves.
+        #
+        # A typical example is to detect local svn rev and send it to the slaves.
+        slave_opts = Hooks.run_hooks({})
         @threads = slave_runners.map do |slave_runner|
           Thread.new do
-            slave_runner.prepare_run(@master_paths, @svn_rev)
+            slave_runner.prepare_run(@master_paths, slave_opts)
             drb_error = nil
             while !index_queue.empty?
               begin

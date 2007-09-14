@@ -3,11 +3,11 @@ License.txt
 Manifest.txt
 README.txt
 Rakefile
-examples/first_spec.rb
-examples/fourth_spec.rb
-examples/second_spec.rb
-examples/third_spec.rb
+examples/slooow_examples.rb
 lib/spec/distributed.rb
+lib/spec/distributed/hooks.rb
+lib/spec/distributed/hooks/master_detect_svn_rev.rb
+lib/spec/distributed/hooks/slave_update_svn.rb
 lib/spec/distributed/master_runner.rb
 lib/spec/distributed/rinda_master_runner.rb
 lib/spec/distributed/rinda_slave_runner.rb
@@ -17,6 +17,7 @@ lib/spec/distributed/version.rb
 scripts/txt2html
 setup.rb
 spec/spec.opts
+spec/spec/distributed/hooks_spec.rb
 spec/spec/distributed/rinda_master_runner_spec.rb
 spec/spec/distributed/rinda_slave_runner_spec.rb
 spec/spec/distributed/tuple_args_spec.rb

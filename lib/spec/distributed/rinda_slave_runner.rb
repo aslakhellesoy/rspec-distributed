@@ -11,7 +11,7 @@ module Spec
       end
 
       def run(paths, exit_when_done)
-        start_or_find_ring_server
+        find_or_start_ring_server
         register_self
         @started = true
         DRb.thread.join
@@ -24,10 +24,10 @@ module Spec
         register_self
       end
 
-      def start_or_find_ring_server
-        DRb.start_service
-        @url = DRb.uri.to_s
+      def find_or_start_ring_server
         begin
+          DRb.start_service
+          @url = DRb.uri.to_s
           puts "Looking for Ring server..."
           @ring_server = Rinda::RingFinger.new
           @service_ts = @ring_server.lookup_ring_any(2)

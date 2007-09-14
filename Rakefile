@@ -131,3 +131,34 @@ Rake::Task['default'].send :instance_variable_set, "@prerequisites", FileList[]
 desc "Default task is to run specs"
 task :default => :spec
 
+namespace :example do
+  desc "Run examples the plain way"
+  Spec::Rake::SpecTask.new('plain') do |t|
+    t.spec_files = FileList['examples/**/*.rb']
+    t.spec_opts = [
+      '--color', '--diff'
+    ]
+  end
+
+  desc "Run a slave for examples"
+  Spec::Rake::SpecTask.new('slave') do |t|
+    t.spec_files = FileList['examples/**/*.rb']
+    t.spec_opts = [
+      '--color', '--diff',
+      '--require', 'rubygems,spec/distributed,spec/distributed/hooks/slave_update_svn', 
+      '--runner', 'Spec::Distributed::RindaSlaveRunner'
+    ]
+    t.libs = ['lib'] # This line is not necessary if you have Spec::Distributes installed as a gem
+  end
+
+  desc "Run a master for examples"
+  Spec::Rake::SpecTask.new('master') do |t|
+    t.spec_files = FileList['examples/**/*.rb']
+    t.spec_opts = [
+      '--color', '--diff',
+      '--require', 'rubygems,spec/distributed,spec/distributed/hooks/master_detect_svn_rev', 
+      '--runner', 'Spec::Distributed::RindaMasterRunner'
+    ]
+    t.libs = ['lib'] # This line is not necessary if you have Spec::Distributes installed as a gem
+  end
+end
