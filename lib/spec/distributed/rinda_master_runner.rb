@@ -8,7 +8,7 @@ module Spec
         process_tuple_args(args)
       end
 
-      def run(paths, exit_when_done)
+      def run
         DRb.start_service
         begin
           @ring_server = Rinda::RingFinger.primary

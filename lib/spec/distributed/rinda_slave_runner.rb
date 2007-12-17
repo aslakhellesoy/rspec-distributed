@@ -10,7 +10,7 @@ module Spec
         process_tuple_args(args)
       end
 
-      def run(paths, exit_when_done)
+      def run
         find_or_start_ring_server
         register_self
         @started = true
@@ -19,7 +19,7 @@ module Spec
 
       # This is called by the master over DRb.
       # the master should be 'take'ing so re-register
-      def report_dump
+      def finish_slave
         super
         register_self
       end

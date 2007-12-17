@@ -3,7 +3,7 @@ require 'spec/distributed/slave_runner'
 
 module Spec
   module Distributed
-    class MasterRunner < ::Spec::Runner::BehaviourRunner      
+    class MasterRunner < ::Spec::Runner::ExampleGroupRunner      
       def initialize(options, args="")
         super(options)
         process_args(args)
@@ -13,17 +13,19 @@ module Spec
         @slave_urls = args.split(",")
         raise "You must pass the DRb URLs: --runner #{self.class}:druby://host1:port1,drb://host2:port2" if @slave_urls.empty?
       end
-      
-      def run(paths, exit_when_done)
-        @master_paths = paths
-        super(paths, exit_when_done)
+
+      def load_files(files)
+        @master_files = files
+        super
       end
       
-      def run_behaviours
+      def run
         DRb.start_service
-        behaviour_reports = Queue.new
+        prepare
+        success = true
+        example_group_reports = Queue.new
         index_queue = Queue.new
-        @behaviours.length.times {|index| index_queue << index}
+        example_groups.length.times {|index| index_queue << index}
 
         # The master can do some prep work before starting slaves.
         # It can also send some values (typically related to its prep work)
@@ -33,14 +35,15 @@ module Spec
         slave_opts = Hooks.run_hooks({})
         @threads = slave_runners.map do |slave_runner|
           Thread.new do
-            slave_runner.prepare_run(@master_paths, slave_opts)
+            slave_runner.prepare_run(@master_files, slave_opts)
             drb_error = nil
             while !index_queue.empty?
               begin
                 i = index_queue.pop
-                behaviour = @behaviours[i]
-                behaviour_report = slave_runner.run_behaviour_at(i, @options.dry_run, @options.reverse, @options.timeout)
-                behaviour_reports << behaviour_report
+                example_group = example_groups[i]
+                result, example_group_report = slave_runner.run_example_group_at(i, @options.dry_run, reverse, @options.timeout)
+                example_group_reports << example_group_report
+                success = success & result
               rescue DRb::DRbConnError => e
                 # Maybe the slave is down. Put the index back and die
                 index_queue << i
@@ -50,24 +53,26 @@ module Spec
             end
             
             unless drb_error
-              slave_runner.report_end
-              slave_runner.report_dump
+              slave_runner.finish_slave
             end
           end
         end
 
-        return unless @threads.length > 0
+        return false unless @threads.length > 0
         
         # Add a last thread for the reporter
         @threads << Thread.new do
-          @behaviours.length.times do
-            behaviour_reports.pop.replay(@options.reporter)
+          example_groups.length.times do
+            example_group_reports.pop.replay(reporter)
           end
         end
 
         @threads.each do |t| 
           t.join
         end
+        success 
+      ensure
+        finish
       end
 
       def slave_runners
