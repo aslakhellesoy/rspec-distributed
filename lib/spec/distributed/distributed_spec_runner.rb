@@ -1,7 +1,5 @@
 module Spec
   module Distributed
-    class NoSuchTransportException < ArgumentError; end
-    
     class DistributedSpecRunner < Spec::Runner::ExampleGroupRunner
       def initialize(options, args="")
         super(options)
@@ -10,7 +8,6 @@ module Spec
 
       def process_args(args)
         manager_class = TransportManager.manager_for(args)
-        raise NoSuchTransportException.new("No such transport_type #{args}") unless manager_class
         @transport_manager = manager_class.new
       end
 
