@@ -2,7 +2,7 @@
 module Spec
   module Distributed
     module TupleArgs
-      def process_tuple_args(args)
+      def process_tuple_args(args=nil)
         if args
           tuple_values = args.split(/,/, -1)
           raise ArgumentError.new("No empty tuple selectors allowed") if tuple_values.include?("") 
