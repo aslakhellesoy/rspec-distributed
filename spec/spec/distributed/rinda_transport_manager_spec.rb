@@ -62,7 +62,7 @@ module Spec
         @manager.service_ts = @service_ts
 
         tuple = tuples
-        tuple[2] = {}
+        tuple[2] = Job.new
         @service_ts.should_receive(:take).with(tuples).and_return(tuple)
       end
       
@@ -88,7 +88,6 @@ module Spec
         
         @service_ts = mock("service_ts")
         @manager.service_ts = @service_ts
-
         
         @example_group = mock('example group')
         @options = mock('options')
@@ -103,16 +102,33 @@ module Spec
         @manager.connect_for_publishing
       end
 
-      it "should send the spec_path of the spec" do
+      it "should send the Job to run" do
         @example_group = mock('example group')
-        @example_group.should_receive(:spec_path).and_return("/a/b/d/d_spec.rb")
+        @example_group.should_receive(:spec_path).and_return("/a/b/d/d_spec.rb:12345")
+        @example_group.should_receive(:description).and_return("example group description")
         @options = mock('options')
 
         tuple = tuples
-        tuple[2] = {:spec_file => "/a/b/d/d_spec.rb"}
-        @service_ts.should_receive(:write).with(tuple)
+        tuple[2] = Job.new(:spec_file => "/a/b/d/d_spec.rb",
+                           :example_group_description => "example group description")
+        @service_ts.should_receive(:write) do |t|
+          t[2].spec_commandline.should == tuple[2].spec_commandline
+        end
         @manager.publish_job(@example_group, @options)
       end
+
+      it "should construct a job with the spec_file and example_group description" do
+        @example_group = mock('example group')
+        @example_group.should_receive(:spec_path).and_return("/a/b/d/d_spec.rb:12345")
+        @example_group.should_receive(:description).and_return("example group description")
+        @options = mock('options')
+        
+        Job.should_receive(:new).with(:spec_file => "/a/b/d/d_spec.rb",
+                                      :example_group_description => "example group description")
+        @service_ts.should_receive(:write)
+        @manager.publish_job(@example_group, @options)
+      end
+
     end
     
   end

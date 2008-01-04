@@ -69,13 +69,14 @@ module Spec
           puts "caught Exception #{e}"
           retry
         end
-        Job.new(tuple[2])
+        tuple[2]
       end
 
       def publish_job(example_group, options)
         tuple = tuples
         spec_path = strip_line_number(example_group.spec_path)
-        tuple[2] = {:spec_file => spec_path}
+        tuple[2] = Job.new(:spec_file => spec_path,
+                           :example_group_description => example_group.description)
         @service_ts.write tuple
       end
 

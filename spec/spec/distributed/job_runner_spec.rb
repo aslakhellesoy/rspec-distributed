@@ -10,7 +10,7 @@ module Spec
         @runner = JobRunner.new(@job_manager)
       end
       
-      it "should start a rinda ring server, and run specs until nil" do
+      it "should run specs until nil" do
         @job_manager.should_receive(:connect)
         spec = mock("spec")
         spec.should_receive(:run).twice
