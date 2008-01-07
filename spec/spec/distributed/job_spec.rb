@@ -22,6 +22,10 @@ module Spec
         Kernel.should_receive(:system).with(%r|\Aspec.*?a/path/to/spec.rb\Z|)
         @job.run
       end
+
+      it "should store the return_path" do
+        Job.new(:return_path => "return_path").return_path.should == "return_path"
+      end
     end
   end
 end

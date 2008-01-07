@@ -4,8 +4,8 @@ module Spec
   module Distributed
     describe Hooks do
       before(:each) do
-        options = mock('options', :null_object => true)
-        @r = MasterRunner.new(options, "foo")
+#        options = mock('options', :null_object => true)
+#        @r = MasterRunner.new(options, "foo")
       end
 
       it "should register and run hooks" do

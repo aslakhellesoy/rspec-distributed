@@ -1,4 +1,3 @@
-
 module Spec
   module Distributed
     module TupleArgs
@@ -12,7 +11,7 @@ module Spec
         end
       end
 
-      def tuples(drb_object=nil)
+      def default_tuple(drb_object=nil)
         if @tuple_selector
           [:rspec_slave, :RindaSlaveRunner, drb_object, *@tuple_selector]
         else

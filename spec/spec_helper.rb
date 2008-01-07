@@ -23,4 +23,16 @@ module Spec
   end
 end
 
+shared_examples_for "capturing stdout" do
+  before do
+    stringio = StringIO.new
+    $stdout = stringio
+  end
+
+  after do
+    $stdout = STDOUT
+  end
+end
+
+
 

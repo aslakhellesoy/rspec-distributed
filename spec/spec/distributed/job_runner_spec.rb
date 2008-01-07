@@ -12,10 +12,11 @@ module Spec
       
       it "should run specs until nil" do
         @job_manager.should_receive(:connect)
-        spec = mock("spec")
-        spec.should_receive(:run).twice
-        @job_manager.should_receive(:next_job).and_return(spec, spec, nil)
+        job = mock("job")
+        job.should_receive(:run).twice
+        @job_manager.should_receive(:next_job).and_return(job, job, nil)
         @job_manager.should_receive(:run)
+        @job_manager.should_receive(:publish_result).twice.with(job)
         runner.start
       end
     end

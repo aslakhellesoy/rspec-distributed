@@ -19,6 +19,7 @@ module Spec
         @t = Thread.new do
           while job = transport_manager.next_job
             job.run
+            transport_manager.publish_result(job)
           end
           # then what?
         end

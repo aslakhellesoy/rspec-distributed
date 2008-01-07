@@ -8,13 +8,6 @@ module Spec
         @example_group = mock("example_group")
         @transport_manager = mock("transport manager")
         
-#        c = Class.new(TransportManager) do
-#          def self.transport_type
-#            "spec_transport"
-#          end
-#        end
-#        c.should_receive(:new).and_return(@transport_manager)
-
         @runner = DistributedSpecRunner.new(@options, "rinda")
         class << @runner
           attr_writer :transport_manager
@@ -35,11 +28,21 @@ module Spec
         @runner = DistributedSpecRunner.new(@options, RindaTransportManager.transport_type)
       end
 
-      it "should tell the transport manager to publish each example" do
+      it "should tell the transport manager to publish each example, and wait for results" do
+        # ick, all from overriding #prepare and calling super
+        reporter = mock("reporter")
+        reporter.should_receive(:start)
+        @options.should_receive(:reporter).any_number_of_times.and_return(reporter)
+        @options.should_receive(:number_of_examples).and_return(2)
+        @options.should_receive(:reverse).and_return(false)
+        reporter.should_receive(:end)
+        reporter.should_receive(:dump)
+        # /ick
         @options.should_receive(:example_groups).and_return([@example_group, @example_group])
-        @transport_manager.should_receive(:connect_for_publishing)
+        @transport_manager.should_receive(:connect).with(false)
         @transport_manager.should_receive(:publish_job).twice.with(@example_group, @options)
-        @runner.run
+        @transport_manager.should_receive(:collect_results).and_return(true)
+        @runner.run.should == true
       end
       
     end
