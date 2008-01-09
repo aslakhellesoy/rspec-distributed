@@ -11,13 +11,26 @@ module Spec
         "rinda"
       end
 
-      def initialize
-        process_tuple_args(nil)
+      def initialize(tuple_args="")
+        process_tuple_args(tuple_args)
+        @published_count = 0
       end
       
       def next_job
+        take_job default_tuple
+      end
+
+      def next_result
+        take_job result_tuple
+      end
+
+      def result_tuple
+        [:rspec_slave, :job_result, nil]
+      end
+
+      def take_job(template)
         begin
-          tuple = @service_ts.take default_tuple
+          tuple = @service_ts.take template
         rescue Exception => e
           puts "caught Exception #{e}"
           retry
@@ -29,16 +42,26 @@ module Spec
         tuple = default_tuple
         tuple[2] = create_job(example_group, options)
         @service_ts.write tuple
+        @published_count += 1
       end
 
       def publish_result(job)
-        tuple = [:rspec_slave, :job_result, job]
+        tuple = result_tuple
+        tuple[2] = job
         @service_ts.write tuple
       end
 
       def collect_results
         # read all result tuples, untill we have enough or timeout
         # collect the results and return them
+        result = true
+        while @published_count > 0
+          puts "Taking next result #{@published_count}"
+          job = next_result
+          result = result & job.result
+          @published_count -= 1
+        end
+        result
       end
 
       def create_job(example_group, options)

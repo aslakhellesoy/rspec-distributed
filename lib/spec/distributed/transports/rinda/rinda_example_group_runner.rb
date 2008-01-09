@@ -3,18 +3,16 @@ module Spec
     class RindaExampleGroupRunner < ::Spec::Runner::ExampleGroupRunner
       include TupleArgs
       include RindaConnection
-      
+
       def initialize(options, args="")
         super(options)
-        process_tuple_args(args)
-        yield self if block_given? # for testing
+        @transport_manager = RindaTransportManager.new(args)
         read_job
       end
 
       def read_job
-        connect(true) unless @service_ts
-        tuple = @service_ts.take default_tuple
-        @job = tuple[2]
+        @transport_manager.connect(true)
+        @job = @transport_manager.next_job
 
         @options.files << @job.spec_file
         @options.examples << @job.example_group_description
@@ -27,9 +25,13 @@ module Spec
       
       def run 
         result = super
-        @job.result = result
+        publish_result(result)
       end
 
+      def publish_result(result)
+        @job.result = result
+        @transport_manager.publish_result(@job)
+      end
     end
   end
 end

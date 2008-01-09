@@ -3,6 +3,7 @@ module Spec
     module RindaConnection
 
       def connect(start_if_not_found = false)
+        return if @service_ts
         DRb.start_service unless DRb.thread
         @url = DRb.uri.to_s
         @service_ts = if start_if_not_found

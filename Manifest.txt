@@ -6,7 +6,7 @@ Rakefile
 examples/slooow_examples.rb
 lib/spec/distributed.rb
 lib/spec/distributed/debug.rb
-lib/spec/distributed/distributed_spec_runner.rb
+lib/spec/distributed/distributed_example_group_publisher.rb
 lib/spec/distributed/example_group_value_holder.rb
 lib/spec/distributed/example_value_holder.rb
 lib/spec/distributed/hooks.rb
@@ -26,7 +26,7 @@ lib/spec/distributed/version.rb
 scripts/txt2html
 setup.rb
 spec/spec.opts
-spec/spec/distributed/distributed_spec_runner_spec.rb
+spec/spec/distributed/distributed_example_group_publisher_spec.rb
 spec/spec/distributed/example_group_value_holder_spec.rb
 spec/spec/distributed/example_value_holder_spec.rb
 spec/spec/distributed/hooks_spec.rb
@@ -34,7 +34,6 @@ spec/spec/distributed/job_runner_spec.rb
 spec/spec/distributed/job_spec.rb
 spec/spec/distributed/recording_formatter_spec.rb
 spec/spec/distributed/transport_manager_spec.rb
-spec/spec/distributed/transports/rinda/#rinda_example_group_runner_spec.rb#
 spec/spec/distributed/transports/rinda/rinda_connection_spec.rb
 spec/spec/distributed/transports/rinda/rinda_example_group_runner_spec.rb
 spec/spec/distributed/transports/rinda/rinda_transport_manager_spec.rb

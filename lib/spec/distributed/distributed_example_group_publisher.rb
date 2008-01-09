@@ -1,6 +1,6 @@
 module Spec
   module Distributed
-    class DistributedSpecRunner < Spec::Runner::ExampleGroupRunner
+    class DistributedExampleGroupPublisher < Spec::Runner::ExampleGroupRunner
       def initialize(options, args="")
         super(options)
         process_args(args)

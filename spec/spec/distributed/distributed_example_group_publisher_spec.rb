@@ -2,13 +2,13 @@ require File.dirname(__FILE__) + '/../../spec_helper'
 
 module Spec
   module Distributed
-    describe DistributedSpecRunner do
+    describe DistributedExampleGroupPublisher do
       before do
         @options = mock("options")
         @example_group = mock("example_group")
         @transport_manager = mock("transport manager")
         
-        @runner = DistributedSpecRunner.new(@options, "rinda")
+        @runner = DistributedExampleGroupPublisher.new(@options, "rinda")
         class << @runner
           attr_writer :transport_manager
         end
@@ -16,16 +16,16 @@ module Spec
       end
 
       it "should complain if no transport type is given" do
-        lambda {DistributedSpecRunner.new(@options)}.should raise_error(NoSuchTransportException)
+        lambda {DistributedExampleGroupPublisher.new(@options)}.should raise_error(NoSuchTransportException)
       end
 
       it "should complain if no known transport type is given" do
-        lambda {DistributedSpecRunner.new(@options, "bogus transport")}.should raise_error(NoSuchTransportException)
+        lambda {DistributedExampleGroupPublisher.new(@options, "bogus transport")}.should raise_error(NoSuchTransportException)
       end
 
       it "should find and create the TransportManager" do
         RindaTransportManager.should_receive(:new)
-        @runner = DistributedSpecRunner.new(@options, RindaTransportManager.transport_type)
+        @runner = DistributedExampleGroupPublisher.new(@options, RindaTransportManager.transport_type)
       end
 
       it "should tell the transport manager to publish each example, and wait for results" do

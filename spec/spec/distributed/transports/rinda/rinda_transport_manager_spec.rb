@@ -16,6 +16,15 @@ module Spec
         @manager.service_ts = @service_ts
       end
 
+      it "should initialize the default tuple" do
+        RindaTransportManager.new.default_tuple.should == default_tuple
+      end
+
+      it "should initialize the default_tuple base on arguments" do
+        process_tuple_args("mine,yours")
+        RindaTransportManager.new("mine,yours").default_tuple.should == default_tuple
+      end
+
       describe "when getting jobs" do
         before do
           tuple = default_tuple
@@ -72,11 +81,30 @@ module Spec
           @manager.publish_result(job)
         end
       end
-    end
 
-    describe RindaTransportManager, "when collecting results" do
-      before do
-        @manager = RindaTransportManager.new
+      describe "when collecting results" do
+        before do
+          example_group = mock("example_group")
+          @service_ts.stub!(:write)
+          @manager.should_receive(:create_job).exactly(3).times
+          3.times do
+            @manager.publish_job(example_group, @options)
+          end
+        end
+
+        it "should collect the number of results published" do
+          job = mock("job")
+          job.should_receive(:result).exactly(3).times.and_return(true)
+          @service_ts.should_receive(:take).exactly(3).times.and_return([nil, nil, job])
+          @manager.collect_results.should == true
+        end
+        it "should aggregate the results" do
+          job = mock("job")
+          job.should_receive(:result).and_return(true, false, true)
+          @service_ts.should_receive(:take).exactly(3).times.and_return([nil, nil, job])
+          @manager.collect_results.should == false
+        end
+
       end
     end
   end
