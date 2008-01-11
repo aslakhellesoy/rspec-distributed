@@ -12,14 +12,17 @@ module Spec
     class Job
       attr_reader :spec_file
       attr_reader :return_path
-      attr_reader :example_group_description
-      attr_accessor :result
+      attr_reader :example_group_description,
+      :example_group_object_id
+      attr_accessor :result, :reporter
       
       def initialize(args={})
         @args = args
         @spec_file = @args[:spec_file]
         @example_group_description = @args[:example_group_description]
         @return_path = @args[:return_path]
+        @example_group_object_id = @args[:example_group_object_id]
+        @reporter = @args[:reporter]
       end
 
       def spec_commandline
@@ -29,10 +32,6 @@ module Spec
         command_line
       end
 
-      def run
-        #puts "running #{spec_commandline}"
-        @result = Kernel.system spec_commandline
-      end
     end
   end
 end

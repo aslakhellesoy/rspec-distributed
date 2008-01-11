@@ -41,7 +41,17 @@ module Spec
         @options.should_receive(:example_groups).and_return([@example_group, @example_group])
         @transport_manager.should_receive(:connect).with(false)
         @transport_manager.should_receive(:publish_job).twice.with(@example_group, @options)
-        @transport_manager.should_receive(:collect_results).and_return(true)
+
+        job1 = mock("job1")
+        job2 = mock("job2")
+
+        recording_reporter = mock("recording_reporter")
+        recording_reporter.should_receive(:replay).twice
+        [job1, job2].each do |job|
+          job.should_receive(:result).and_return(true)
+          job.should_receive(:reporter).and_return(recording_reporter)
+        end
+        @transport_manager.should_receive(:collect_results).and_yield(job1).and_yield(job2)
         @runner.run.should == true
       end
       

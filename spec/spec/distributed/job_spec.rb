@@ -17,15 +17,14 @@ module Spec
         @job.spec_commandline.should match(/-e 'my example group'/)
       end
       
-      it "should exec to run the spec" do
-        @job = Job.new(:spec_file => "a/path/to/spec.rb")
-        Kernel.should_receive(:system).with(%r|\Aspec.*?a/path/to/spec.rb\Z|)
-        @job.run
+      it "should store the remote example_group object id" do
+        Job.new(:example_group_object_id => 1).example_group_object_id.should == 1
       end
 
-      it "should store the return_path" do
-        Job.new(:return_path => "return_path").return_path.should == "return_path"
+      it "should store the remote example_group object id" do
+        Job.new(:reporter => "reporter").reporter.should == "reporter"
       end
+
     end
   end
 end

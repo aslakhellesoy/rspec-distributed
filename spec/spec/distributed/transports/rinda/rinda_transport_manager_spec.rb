@@ -52,24 +52,28 @@ module Spec
           @example_group = mock('example group')
           @example_group.should_receive(:spec_path).and_return("/a/b/d/d_spec.rb:12345")
           @example_group.should_receive(:description).and_return("example group description")
+          DRb.should_receive(:uri).and_return("druby://localhost:12345/")
           @options = mock('options')
 
           tuple = default_tuple
           tuple[2] = Job.new(:spec_file => "/a/b/d/d_spec.rb",
                              :example_group_description => "example group description")
           @service_ts.should_receive(:write) do |t|
-            t[2].spec_commandline.should == tuple[2].spec_commandline
+            t[2] == tuple[2]
           end
           @manager.publish_job(@example_group, @options)
         end
 
-        it "should construct a job with the spec_file and example_group description and return path" do
+        it "should construct a job with the spec_file and example_group description, example_group object id and return path" do
           @example_group = mock('example group')
           @example_group.should_receive(:spec_path).and_return("/a/b/d/d_spec.rb:12345")
           @example_group.should_receive(:description).and_return("example group description")
+          @example_group.should_receive(:object_id).and_return(54321)
+          DRb.should_receive(:uri).and_return("druby://localhost:12345/")
           Job.should_receive(:new).with(:spec_file => "/a/b/d/d_spec.rb",
                                         :example_group_description => "example group description",
-                                        :return_path => @service_ts)
+                                        :example_group_object_id => 54321,
+                                        :return_path => "druby://localhost:12345/")
           @manager.create_job(@example_group, mock("options"))
         end
       end
@@ -77,7 +81,9 @@ module Spec
       describe "when publishing results" do
         it "should write the job into the tuple space as a result" do
           job = mock("job with result")
-          @service_ts.should_receive(:write).with([:rspec_slave, :job_result, job])
+          job.should_receive(:return_path).and_return("druby://localhost:12345/")
+          @service_ts.should_receive(:write).with([:rspec_slave, :job_result, job, "druby://localhost:12345/"])
+          
           @manager.publish_result(job)
         end
       end
@@ -86,6 +92,7 @@ module Spec
         before do
           example_group = mock("example_group")
           @service_ts.stub!(:write)
+          DRb.should_receive(:uri).any_number_of_times.and_return("druby://localhost:12345/")
           @manager.should_receive(:create_job).exactly(3).times
           3.times do
             @manager.publish_job(example_group, @options)
@@ -94,17 +101,14 @@ module Spec
 
         it "should collect the number of results published" do
           job = mock("job")
-          job.should_receive(:result).exactly(3).times.and_return(true)
-          @service_ts.should_receive(:take).exactly(3).times.and_return([nil, nil, job])
-          @manager.collect_results.should == true
-        end
-        it "should aggregate the results" do
-          job = mock("job")
-          job.should_receive(:result).and_return(true, false, true)
-          @service_ts.should_receive(:take).exactly(3).times.and_return([nil, nil, job])
-          @manager.collect_results.should == false
-        end
+          @service_ts.should_receive(:take).with([:rspec_slave, :job_result, nil, "druby://localhost:12345/"]).exactly(3).times.and_return([:rspec_slave, :job_result, job, "druby://localhost:12345/"])
 
+          count = 0
+          @manager.collect_results do |job|
+            count += 1
+          end
+          count.should == 3
+        end
       end
     end
   end

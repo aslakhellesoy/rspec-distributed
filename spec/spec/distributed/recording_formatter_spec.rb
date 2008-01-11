@@ -1,10 +1,10 @@
 require File.dirname(__FILE__) + '/../../spec_helper.rb'
 module Spec
   module Distributed
-    describe RecordingFormatter do
+    describe RecordingReporter do
       attr_reader :recorder, :target
       before do
-        @recorder = RecordingFormatter.new("Watermark")
+        @recorder = RecordingReporter.new("Watermark")
         @target = mock("target reporter")
       end
 

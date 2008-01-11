@@ -14,7 +14,7 @@ lib/spec/distributed/hooks/master_detect_svn_rev.rb
 lib/spec/distributed/hooks/slave_update_svn.rb
 lib/spec/distributed/job.rb
 lib/spec/distributed/job_runner.rb
-lib/spec/distributed/recording_formatter.rb
+lib/spec/distributed/recording_reporter.rb
 lib/spec/distributed/transport_manager.rb
 lib/spec/distributed/transports.rb
 lib/spec/distributed/transports/rinda/rinda_connection.rb

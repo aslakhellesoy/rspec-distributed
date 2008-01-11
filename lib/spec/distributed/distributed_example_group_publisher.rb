@@ -17,7 +17,10 @@ module Spec
         example_groups.each do |example_group|
           transport_manager.publish_job(example_group, @options)
         end
-        success = transport_manager.collect_results # timeout?
+        transport_manager.collect_results do |job|
+          success = success & job.result
+          job.reporter.replay(reporter)
+        end
         success
       ensure
         finish
