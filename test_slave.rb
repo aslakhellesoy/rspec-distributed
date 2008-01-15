@@ -7,5 +7,5 @@ $LOAD_PATH.unshift distributed_path unless $LOAD_PATH.include?(distributed_path)
 
 require 'spec/distributed'
 begin
-  ::Spec::Runner::CommandLine.run(::Spec::Runner::OptionParser.parse(["--runner", "Spec::Distributed::RindaExampleGroupRunner"], STDERR, STDOUT))
+  ::Spec::Runner::CommandLine.run(::Spec::Runner::OptionParser.parse(["-d", "--runner", "Spec::Distributed::RindaExampleGroupRunner"], STDERR, STDOUT))
 end while true

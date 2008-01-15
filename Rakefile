@@ -70,7 +70,7 @@ hoe = Hoe.new(GEM_NAME, VERS) do |p|
   
   # == Optional
   p.changes = p.paragraphs_of("History.txt", 0..1).join("\n\n")
-  p.extra_deps = [['rspec', '>= 1.0.8']]     # An array of rubygem dependencies [name, version], e.g. [ ['active_support', '>= 1.3.1'] ]
+  p.extra_deps = [['rspec', '>= 1.1.1']]     # An array of rubygem dependencies [name, version], e.g. [ ['active_support', '>= 1.3.1'] ]
   #p.spec_extras = {}    # A hash of extra values to set in the gemspec.
 end
 
@@ -121,6 +121,8 @@ end
 
 desc "Run specs"
 Spec::Rake::SpecTask.new do |t|
+  t.rcov = true
+  t.rcov_opts = ['--exclude', '\/var\/lib\/gems,\/Library\/Ruby,\.autotest']
   t.spec_opts = ['--options', "spec/spec.opts"]
   t.spec_files = FileList['spec/**/*_spec.rb']
 end

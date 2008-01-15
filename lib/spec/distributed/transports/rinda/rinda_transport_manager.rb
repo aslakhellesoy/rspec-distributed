@@ -82,7 +82,7 @@ module Spec
       end
 
       def strip_line_number(spec_path)
-        spec_path.gsub(/:\d+\Z/, "")
+        spec_path.gsub(/:\d+.*\Z/, "")
       end
     end
   end
