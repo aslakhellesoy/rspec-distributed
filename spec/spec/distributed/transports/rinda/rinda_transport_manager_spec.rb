@@ -46,36 +46,26 @@ module Spec
         before do
           @example_group = mock('example group')
           @options = mock('options')
+          
+          @job = mock("job")
+          @tuple = default_tuple
+          @tuple[2] = @job
         end
 
         it "should send the Job to run" do
-          @example_group = mock('example group')
-          @example_group.should_receive(:spec_path).and_return("/a/b/d/d_spec.rb:12345")
-          @example_group.should_receive(:description).and_return("example group description")
-          DRb.should_receive(:uri).and_return("druby://localhost:12345/")
-          @options = mock('options')
-
-          tuple = default_tuple
-          tuple[2] = Job.new(:spec_file => "/a/b/d/d_spec.rb",
-                             :example_group_description => "example group description")
           @service_ts.should_receive(:write) do |t|
-            t[2] == tuple[2]
+            t[2].should == @tuple[2]
           end
-          @manager.publish_job(@example_group, @options)
+          @manager.publish_job(@job)
         end
 
-        it "should construct a job with the spec_file and example_group description, example_group object id and return path" do
-          @example_group = mock('example group')
-          @example_group.should_receive(:spec_path).and_return("/a/b/d/d_spec.rb:12345")
-          @example_group.should_receive(:description).and_return("example group description")
-          @example_group.should_receive(:object_id).and_return(54321)
-          DRb.should_receive(:uri).and_return("druby://localhost:12345/")
-          Job.should_receive(:new).with(:spec_file => "/a/b/d/d_spec.rb",
-                                        :example_group_description => "example group description",
-                                        :example_group_object_id => 54321,
-                                        :return_path => "druby://localhost:12345/")
-          @manager.create_job(@example_group, mock("options"))
+        it "should add a unique identifier to the tuple" do
+          @service_ts.should_receive(:write) do |t|
+            t.last.should == "12345"
+          end
+          @manager.publish_job(@job, "12345")
         end
+
       end
       
       describe "when publishing results" do
@@ -92,10 +82,10 @@ module Spec
         before do
           example_group = mock("example_group")
           @service_ts.stub!(:write)
+          job = mock("job")
           DRb.should_receive(:uri).any_number_of_times.and_return("druby://localhost:12345/")
-          @manager.should_receive(:create_job).exactly(3).times
           3.times do
-            @manager.publish_job(example_group, @options)
+            @manager.publish_job(job)
           end
         end
 

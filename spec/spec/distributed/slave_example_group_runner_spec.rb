@@ -25,6 +25,11 @@ module Spec
           @job = mock("job")
           @job.should_receive(:spec_file).and_return("/path/to/spec")
           @job.should_receive(:example_group_description).and_return("example group description")
+          
+          @job.should_receive(:[]=).any_number_of_times.with(:foo, :bar)
+          Hooks.add_slave_hook do |job|
+            job[:foo] = :bar
+          end
 
           @files = []
           @examples = []
@@ -33,11 +38,15 @@ module Spec
 
           @runner_and_tuple_args = "rinda:mine,mine"
           RindaTransportManager.should_receive(:new).with("mine,mine").and_return(@transport_manager)
-          # what is true to the transport_manager?
-          @transport_manager.should_receive(:connect).with(true)
+
+          @transport_manager.should_receive(:connect)
           @transport_manager.should_receive(:next_job).and_return(@job)
 
           @runner = SlaveExampleGroupRunner.new(@options, @runner_and_tuple_args)
+        end
+        
+        after do
+          Hooks.reset
         end
 
         it "should read a job from the tuplespace, and tell options the file and example name" do

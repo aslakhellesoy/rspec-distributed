@@ -122,7 +122,7 @@ end
 desc "Run specs"
 Spec::Rake::SpecTask.new do |t|
   t.rcov = true
-  t.rcov_opts = ['--exclude', '\/var\/lib\/gems,\/Library\/Ruby,\.autotest']
+  t.rcov_opts = ['--exclude', 'spec\/spec,\/var\/lib\/gems,\/Library\/Ruby,\.autotest']
   t.spec_opts = ['--options', "spec/spec.opts"]
   t.spec_files = FileList['spec/**/*_spec.rb']
 end

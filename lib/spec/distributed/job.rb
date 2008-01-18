@@ -9,29 +9,36 @@ module Spec
     # - enviroment variables
     # - return path
     # - DRb location of formatters IO?
-    class Job
-      attr_reader :spec_file
-      attr_reader :return_path
-      attr_reader :example_group_description,
-      :example_group_object_id
-      attr_accessor :result, :reporter
+
+    # OpenStruct is a bug waiting to happen...
+    class Job < OpenStruct
+      class << self
+        def create_job(example_group, options, return_path)
+          path = example_group.spec_path
+          spec_path = strip_line_number(path)
+
+          # master (publisher) hooks go here
+          Job.new(:spec_file => spec_path,
+                  :example_group_description => example_group.description,
+                  :example_group_object_id => example_group.object_id,
+                  :return_path => return_path)
+        end
+
+        def strip_line_number(spec_path)
+          spec_path.gsub(/:\d+.*\Z/, "")
+        end
+      end
       
       def initialize(args={})
-        @args = args
-        @spec_file = @args[:spec_file]
-        @example_group_description = @args[:example_group_description]
-        @return_path = @args[:return_path]
-        @example_group_object_id = @args[:example_group_object_id]
-        @reporter = @args[:reporter]
+        super
       end
 
-      def spec_commandline
-        command_line = "spec"
-        command_line << " -e '#{@example_group_description}'" if @example_group_description
-        command_line << " #{spec_file}"
-        command_line
+      def add_library(library_path)
+        self.libraries ||= []
+        self.libraries << library_path
       end
 
+      
     end
   end
 end

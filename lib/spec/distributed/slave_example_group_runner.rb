@@ -20,8 +20,9 @@ module Spec
 
       def read_job
         # what is true to the transport_manager?
-        transport_manager.connect(true)
+        transport_manager.connect
         @job = transport_manager.next_job
+        Hooks.run_slave_hooks(job)
         @options.files << job.spec_file
         @options.examples << job.example_group_description
       end

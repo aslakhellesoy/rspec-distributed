@@ -55,8 +55,15 @@ module Spec
         describe "when publishing example_groups" do
           it "should send each example_group to the transport_manager" do
             @runner.should_receive(:example_groups).and_return([@example_group, @example_group])
-            @transport_manager.should_receive(:publish_job).twice.with(@example_group, @options)
+            @transport_manager.should_receive(:return_path).twice.and_return("return_path")
+            job = {}
+            Hooks.add_master_hook do |job|
+              job[:foo] = :bar
+            end
+            Job.should_receive(:create_job).twice.with(@example_group, @options, "return_path").and_return(job)
+            @transport_manager.should_receive(:publish_job).twice
             @runner.send(:publish_example_groups)
+            job[:foo].should == :bar
           end
         end
 

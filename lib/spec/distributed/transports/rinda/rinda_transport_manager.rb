@@ -21,6 +21,7 @@ module Spec
       end
       
       def next_job
+        puts "in next_job tuple = #{default_tuple.inspect}"
         take_job default_tuple
       end
 
@@ -42,12 +43,17 @@ module Spec
         tuple[2]
       end
 
-      def publish_job(example_group, options)
-        job = create_job(example_group, options)
-        tuple = default_tuple
-        tuple[2] = job
-        @service_ts.write tuple
+      def publish_job(job, job_identifier = nil)
+        write_job(job, job_identifier)
         @published_count += 1
+      end
+
+      def write_job(job, job_identifier = nil)
+        tuple = default_tuple
+        tuple << job_identifier if job_identifier
+        tuple[2] = job
+        puts "write tuple = #{tuple.inspect}"
+        @service_ts.write tuple
       end
 
       def publish_result(job)
@@ -66,24 +72,6 @@ module Spec
         result
       end
 
-      def create_job(example_group, options)
-        # TODO: This only handles one level of nested example groups.
-        # Not needed if the bug is fixed (nested example_groups don't have spec_paths)
-        path = example_group.spec_path
-        path = example_group.superclass.spec_path if path.nil? # rspec bug ????
-        spec_path = strip_line_number(path)
-
-        # master (publisher) hooks go here
-        Job.new(:spec_file => spec_path,
-                :example_group_description => example_group.description,
-                :example_group_object_id => example_group.object_id,
-                :return_path => return_path)
-        # need a return path
-      end
-
-      def strip_line_number(spec_path)
-        spec_path.gsub(/:\d+.*\Z/, "")
-      end
     end
   end
 end
