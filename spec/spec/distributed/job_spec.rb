@@ -4,13 +4,13 @@ module Spec
   module Distributed
     describe Job do
 
-      it "should construct a job with the spec_file and example_group description, example_group object id and return path" do
+      it "should construct a job with the spec_path and example_group description, example_group object id and return path" do
         @example_group = mock('example group')
         @example_group.should_receive(:spec_path).and_return("/a/b/d/d_spec.rb:12345")
         @example_group.should_receive(:description).and_return("example group description")
         @example_group.should_receive(:object_id).and_return(54321)
         
-        Job.should_receive(:new).with(:spec_file => "/a/b/d/d_spec.rb",
+        Job.should_receive(:new).with(:spec_path => "/a/b/d/d_spec.rb",
                                       :example_group_description => "example group description",
                                       :example_group_object_id => 54321,
                                       :return_path => "return_path")

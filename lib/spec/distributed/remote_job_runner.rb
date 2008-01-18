@@ -58,7 +58,7 @@ module Spec
       end
 
       def job_identifier 
-        "hello"
+        "#{Process::pid}"
       end
 
       def transport_manager 

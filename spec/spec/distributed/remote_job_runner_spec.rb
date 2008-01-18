@@ -20,7 +20,7 @@ module Spec
         job = mock("job")
         job.should_receive(:libraries).exactly(3).times.and_return([])
         spec_options = mock('spec_options')
-        ::Spec::Runner::OptionParser.should_receive(:parse).exactly(3).times.with(["--require", "spec/distributed", "--runner", "Spec::Distributed::SlaveExampleGroupRunner:rinda:hello"], STDERR, STDOUT).and_return(spec_options)
+        ::Spec::Runner::OptionParser.should_receive(:parse).exactly(3).times.with(["--require", "spec/distributed", "--runner", "Spec::Distributed::SlaveExampleGroupRunner:rinda:#{Process::pid}"], STDERR, STDOUT).and_return(spec_options)
 
         transport_manager.should_receive(:next_job).exactly(3).times.and_return(job)
         transport_manager.should_receive(:write_job).exactly(3).times

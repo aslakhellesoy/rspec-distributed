@@ -23,7 +23,7 @@ module Spec
         transport_manager.connect
         @job = transport_manager.next_job
         Hooks.run_slave_hooks(job)
-        @options.files << job.spec_file
+        @options.files << job.spec_path
         @options.examples << job.example_group_description
       end
 

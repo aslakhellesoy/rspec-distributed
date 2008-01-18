@@ -18,7 +18,7 @@ module Spec
           spec_path = strip_line_number(path)
 
           # master (publisher) hooks go here
-          Job.new(:spec_file => spec_path,
+          Job.new(:spec_path => spec_path,
                   :example_group_description => example_group.description,
                   :example_group_object_id => example_group.object_id,
                   :return_path => return_path)
@@ -31,10 +31,10 @@ module Spec
       
       def initialize(args={})
         super
+        self.libraries ||= []
       end
 
       def add_library(library_path)
-        self.libraries ||= []
         self.libraries << library_path
       end
 

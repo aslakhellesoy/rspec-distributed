@@ -23,7 +23,7 @@ module Spec
           # all this stuff has to happen at creation time, 
           # because there is no hook before load_files
           @job = mock("job")
-          @job.should_receive(:spec_file).and_return("/path/to/spec")
+          @job.should_receive(:spec_path).and_return("/path/to/spec")
           @job.should_receive(:example_group_description).and_return("example group description")
           
           @job.should_receive(:[]=).any_number_of_times.with(:foo, :bar)
