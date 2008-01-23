@@ -19,6 +19,7 @@ module Spec
         
         job = mock("job")
         job.should_receive(:libraries).exactly(3).times.and_return([])
+        job.stub!(:environment).and_return({})
         spec_options = mock('spec_options')
         ::Spec::Runner::OptionParser.should_receive(:parse).exactly(3).times.with(["--require", "spec/distributed", "--runner", "Spec::Distributed::SlaveExampleGroupRunner:rinda:#{Process::pid}"], STDERR, STDOUT).and_return(spec_options)
 
@@ -39,7 +40,22 @@ module Spec
 
         runner.spec_options.should include("lib_a")
         runner.spec_options.should include("lib_b")
-      
+      end
+
+      it "should set any env vars, and unset them after the run" do
+        job = mock("job with environment variables")
+        job.should_receive(:environment).twice.and_return({"A" => "A", "B" => "B"})
+        class << runner
+          attr_accessor :current_job
+          def run_non_forked 
+            ENV["A"].should == "A"
+            ENV["B"].should == "B"
+          end
+        end
+        runner.current_job = job
+        runner.run_current_job
+        ENV["A"].should be_nil
+        ENV["B"].should be_nil
       end
       
     end

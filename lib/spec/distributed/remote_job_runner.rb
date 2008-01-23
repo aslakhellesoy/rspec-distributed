@@ -8,21 +8,39 @@ module Spec
       end
 
       def run
-        transport_manager.connect(true)
+        prepare
         begin
-          puts "taking job"
-          @current_job = transport_manager.next_job
-          puts "got job"
-          
-          transport_manager.write_job(current_job, job_identifier)
-
-          run_non_forked
-          #run_forked
+          select_job
+          run_current_job
         end while keep_running?
+      end
+
+      def prepare 
+        transport_manager.connect(true)
+      end
+
+      def select_job
+        @current_job = transport_manager.next_job
+        transport_manager.write_job(current_job, job_identifier)
+      end
+      
+      def run_current_job
+        set_environment
+        if run_forked?
+          run_forked
+        else
+          run_non_forked
+        end
+      ensure
+        reset_environment
       end
 
       def keep_running?
         true
+      end
+
+      def run_forked?
+        false
       end
 
       def run_non_forked
@@ -63,6 +81,18 @@ module Spec
 
       def transport_manager 
         @transport_manager ||= TransportManager.manager_for(transport_type).new
+      end
+
+      def set_environment
+        current_job.environment.each do |key, value|
+          ENV[key] = value
+        end
+      end
+
+      def reset_environment
+        current_job.environment.each do |key, value|
+          ENV.delete key
+        end
       end
     end
   end

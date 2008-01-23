@@ -33,6 +33,13 @@ module Spec
         job.libraries.should == ["a", "b"]
       end
 
+      it "should store environment pairs" do
+        job = Job.new
+        job.add_environment("A", "A")
+        job.add_environment("B", "B")
+        job.environment.should == {"A" => "A", "B" => "B"}
+      end
+
     end
   end
 end
