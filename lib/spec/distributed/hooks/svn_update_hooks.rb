@@ -8,7 +8,7 @@ module Spec
           revert
           update svn_rev
         end
-        apply_changeset patch unless diff.empty?
+        apply_changeset patch unless patch.empty?
       end
 
       def apply_changeset(diff)
