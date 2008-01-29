@@ -17,7 +17,9 @@ module Spec
           path = example_group.spec_path
           spec_path = strip_line_number(path)
 
-          Job.new(:spec_path => spec_path,
+          relative_path = rel_path(Dir.pwd, spec_path)
+
+          Job.new(:spec_path => relative_path,
                   :example_group_description => example_group.description,
                   :example_group_object_id => example_group.object_id,
                   :return_path => return_path)
@@ -26,6 +28,35 @@ module Spec
         def strip_line_number(spec_path)
           spec_path.gsub(/:\d+.*\Z/, "")
         end
+
+        # http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/20586
+        def rel_path(a, b)
+          # Should work in in win and *nix
+          sep = File::Separator
+
+          # Get rid of /path//to/./here problems
+          a = (File::expand_path a).split(sep)
+          b = (File::expand_path b).split(sep)
+
+          # Windows?
+          raise "can't switch drives" if a[0] =~ /^\w\:$/ and a[0] != b[0]
+
+          # If one of the paths starts with /, the split array
+          # will have an empty first element (if a path is solely
+          # /, it will be empty)
+          a.shift unless a.empty? or not a[0].empty?
+          b.shift unless b.empty? or not b[0].empty?
+
+          # If a & b are empty, a[0] == b[0] == nil
+          while a[0] == b[0] and not a.empty? and not b.empty?
+            a.shift
+            b.shift
+          end
+
+          parent = ".." + sep
+          (parent * a.size) + b.join(sep)
+        end
+        
         # path transformation
         # The master may want to set a path transformation in a few scenarios:
         # A. The master wants the slave to load the spec from the master's

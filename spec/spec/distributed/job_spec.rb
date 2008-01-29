@@ -9,14 +9,16 @@ module Spec
         @example_group.should_receive(:spec_path).and_return("/a/b/d/d_spec.rb:12345")
         @example_group.should_receive(:description).and_return("example group description")
         @example_group.should_receive(:object_id).and_return(54321)
-        
-        Job.should_receive(:new).with(:spec_path => "/a/b/d/d_spec.rb",
-                                      :example_group_description => "example group description",
-                                      :example_group_object_id => 54321,
-                                      :return_path => "return_path")
-        Job.create_job(@example_group, mock("options"), "return_path")
-      end
 
+        Dir.should_receive(:pwd).and_return("/a/b")
+        
+        job = Job.create_job(@example_group, mock("options"), "return_path")
+        
+        job.spec_path.should == "d/d_spec.rb"
+        job.example_group_description.should == "example group description"
+        job.example_group_object_id.should == 54321
+        job.return_path.should == "return_path"
+      end
       
       it "should store the remote example_group object id" do
         Job.new(:example_group_object_id => 1).example_group_object_id.should == 1

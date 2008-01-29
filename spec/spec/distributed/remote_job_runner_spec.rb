@@ -10,12 +10,21 @@ module Spec
         @runner = RemoteJobRunner.new(@options)
       end
 
-      it "should call the spec command line with the correct runner and transport type" do
-        @transport_manager = mock("transport_manager")
-        @transport_manager.should_receive(:connect).with(true)
-        @transport_manager_class = mock("transport_manager_class")
-        @transport_manager_class.should_receive(:new).and_return(@transport_manager)
-        TransportManager.should_receive(:manager_for).and_return(@transport_manager_class)
+      describe "when running" do
+        before do
+          @transport_manager = mock("transport_manager")
+          @transport_manager.should_receive(:connect).with(true)
+          @transport_manager_class = mock("transport_manager_class")
+          @transport_manager_class.should_receive(:new).and_return(@transport_manager)
+          TransportManager.should_receive(:manager_for).with("rinda").and_return(@transport_manager_class)
+        end
+
+        it "should get the correct transport_manager and call connect" do
+          @runner.prepare
+        end
+      end
+
+      xit "should call the spec command line with the correct runner and transport type" do
         
         job = mock("job")
         job.should_receive(:libraries).exactly(3).times.and_return([])
