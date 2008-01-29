@@ -40,7 +40,7 @@ module Spec
       end
 
       def run_forked?
-        false
+        true
       end
 
       def run_non_forked

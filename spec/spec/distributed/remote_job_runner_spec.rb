@@ -56,7 +56,7 @@ module Spec
         job.should_receive(:environment).twice.and_return({"A" => "A", "B" => "B"})
         class << runner
           attr_accessor :current_job
-          def run_non_forked 
+          def run_forked 
             ENV["A"].should == "A"
             ENV["B"].should == "B"
           end

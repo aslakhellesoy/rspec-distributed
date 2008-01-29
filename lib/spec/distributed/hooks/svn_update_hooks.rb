@@ -3,15 +3,15 @@ module Spec
     # This slave hook updates svn working copy to a given revision.
     # It's smart enough to walk up the directory tree and update from the root.
     class UpdateSvn
-      def update_wc(svn_rev, diff)
+      def update_wc(svn_rev, patch)
         Dir.chdir(top_svn_dir) do
           revert
           update svn_rev
-          patch diff if diff
         end
+        apply_changeset patch unless diff.empty?
       end
 
-      def patch(diff)
+      def apply_changeset(diff)
         IO.popen("patch -p0", "w+") do |patch|
           patch.puts diff
           patch.close_write
@@ -20,13 +20,16 @@ module Spec
       end
 
       def local_diff
-        Dir.chdir(top_svn_dir) do
+        # I'm not sure diffs should be rooted at the top
+        # of the svn tree. At least not for us.
+        #Dir.chdir(top_svn_dir) do
           `svn diff`
-        end
+        #end
       end
 
       def local_revision
-        `svn info`.match(/Revision: (\d+)/m)[1]  
+        revision = `svn info`.match(/Revision: (\d+)/m)[1]
+        revision.to_i
       end
 
       def revert
@@ -34,8 +37,7 @@ module Spec
       end
 
       def update(svn_rev)
-        local_rev = `svn info`.match(/^Revision: (\d+)$/n)[1]
-        if(local_rev.to_i != svn_rev.to_i)
+        if(local_revision != svn_rev)
           system("svn up -r#{svn_rev}")
         end
       end
