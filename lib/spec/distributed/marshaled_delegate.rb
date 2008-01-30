@@ -28,6 +28,8 @@ module Spec
 
       def load_target
         Marshal.load(@dumped_target)
+      ensure
+        @dumped_target = nil
       end
     end
   end

@@ -6,7 +6,7 @@ module Spec
       attr_reader :target, :delegate
       before do
         class Foo
-          attr_reader :foo, :bar
+          attr_accessor :foo, :bar
           def initialize; @foo = "foo"; @bar = "bar"; end
           def marshal_dump
             $dump_called = true
@@ -62,11 +62,17 @@ module Spec
         $load_called = false
         d = Marshal.load(Marshal.dump(delegate))
         d2 = Marshal.load(Marshal.dump(d))
-        puts d2.inspect
         $load_called.should == false
         d2.bar.should == "bar"
       end
-      
+
+      it "should carry changes across marshalings" do
+        d = Marshal.load(Marshal.dump(delegate))
+        d.bar = "bar1"
+        d2 = Marshal.load(Marshal.dump(d))
+        d2.bar.should == "bar1"
+      end
+
     end
   end
 end
