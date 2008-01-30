@@ -6,10 +6,16 @@ module Spec
       attr_reader :target, :delegate
       before do
         class Foo
-          def foo; "foo"; end
-          def bar; "bar"; end
-          def marshal_dump; $dump_called = true; end
-          def marshal_load(o); $load_called = true; end
+          attr_reader :foo, :bar
+          def initialize; @foo = "foo"; @bar = "bar"; end
+          def marshal_dump
+            $dump_called = true
+            [@foo,@bar]
+          end
+          def marshal_load(a)
+            @foo, @bar = *a
+            $load_called = true
+          end
         end
         @target = Foo.new
         @delegate = MarshaledDelegate.new(target)
@@ -46,10 +52,19 @@ module Spec
 
       it "should call load when accessing the target" do
         $load_called = false
-        dump = Marshal.dump(delegate)
-        d = Marshal.load(dump)
+        d = Marshal.load(Marshal.dump(delegate))
+        $load_called.should == false
         d.foo.should == "foo"
         $load_called.should == true
+      end
+
+      it "should be able to dump/load multiple times" do
+        $load_called = false
+        d = Marshal.load(Marshal.dump(delegate))
+        d2 = Marshal.load(Marshal.dump(d))
+        puts d2.inspect
+        $load_called.should == false
+        d2.bar.should == "bar"
       end
       
     end

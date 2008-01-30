@@ -6,7 +6,7 @@ module Spec
       end
 
       def marshal_dump
-        Marshal.dump(@target)
+        @dumped_target || Marshal.dump(@target)
       end
 
       def marshal_load(target_string)
