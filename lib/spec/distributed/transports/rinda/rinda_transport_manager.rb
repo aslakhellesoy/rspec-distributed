@@ -44,7 +44,8 @@ module Spec
       end
 
       def publish_job(job, job_identifier = nil)
-        write_job(job, job_identifier)
+        marshaled_delegate = MarshaledDelegate.new(job)
+        write_job(marshaled_delegate, job_identifier)
         @published_count += 1
       end
 

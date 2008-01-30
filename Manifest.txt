@@ -13,6 +13,7 @@ lib/spec/distributed/hooks/spec_path_hook.rb
 lib/spec/distributed/hooks/svn_update_hooks.rb
 lib/spec/distributed/job.rb
 lib/spec/distributed/job_runner_option_parser.rb
+lib/spec/distributed/marshaled_delegate.rb
 lib/spec/distributed/master_example_group_runner.rb
 lib/spec/distributed/recording_reporter.rb
 lib/spec/distributed/remote_job_runner.rb
@@ -33,6 +34,7 @@ spec/spec/distributed/example_value_holder_spec.rb
 spec/spec/distributed/hooks_spec.rb
 spec/spec/distributed/job_runner_option_parser_spec.rb
 spec/spec/distributed/job_spec.rb
+spec/spec/distributed/marshaled_delegate_spec.rb
 spec/spec/distributed/master_example_group_runner_spec.rb
 spec/spec/distributed/recording_formatter_spec.rb
 spec/spec/distributed/remote_job_runner_spec.rb
