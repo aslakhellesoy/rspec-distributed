@@ -4,7 +4,7 @@ module Spec
       Hooks.add_master_hook do |job|
         job.add_library 'spec/distributed/hooks/spec_path_hook'
         hostname = `hostname`.chomp
-        job.spec_path_transformation = ['/Users/bcotton/projects/trunk/alm', "/Users/spec_slave/projects"]
+        job.spec_path_transformation = ['/Users/bcotton/projects', "/Volumes/england"]
       end
     end
     module SlaveHooks

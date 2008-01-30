@@ -8,10 +8,13 @@ module Spec
 
       def value 
         example_group = @example_group_value_holder.value
-        e = example_group.examples.find do |e|
-          e.description == @description
+        if @description =~ /:all/
+          example_group.new(@description)
+        else
+          example_group.examples.find do |e|
+            e.description == @description
+          end
         end
-        e
       end
     end
   end
