@@ -10,7 +10,7 @@ module Spec
       def run
         prepare
         begin
-          select_job
+          select_and_assign_job
           run_current_job
         end while keep_running?
       end
@@ -19,9 +19,8 @@ module Spec
         transport_manager.connect(true)
       end
 
-      def select_job
-        @current_job = transport_manager.next_job
-        transport_manager.write_job(current_job, job_identifier)
+      def select_and_assign_job
+        @current_job = transport_manager.assign_next_job_to(slave_identifier)
       end
       
       def run_current_job
@@ -40,7 +39,7 @@ module Spec
       end
 
       def run_forked?
-        true
+        @options.fork
       end
 
       def run_non_forked
@@ -60,7 +59,7 @@ module Spec
           [
            "--require", "spec/distributed", 
            "--runner",
-           "Spec::Distributed::SlaveExampleGroupRunner:#{transport_type}:#{job_identifier}"
+           "Spec::Distributed::SlaveExampleGroupRunner:#{transport_type}:#{slave_identifier}"
           ]
         
         current_job.libraries.each do |lib|
@@ -75,7 +74,7 @@ module Spec
         @options.transport_type  
       end
 
-      def job_identifier 
+      def slave_identifier 
         "#{Process::pid}"
       end
 

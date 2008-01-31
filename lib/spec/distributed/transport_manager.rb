@@ -24,7 +24,7 @@ module Spec
           transport_types = subclasses_by_type.keys
           manager = subclasses_by_type[transport_type]
           if manager.nil?
-            raise NoSuchTransportException.new("No known transport_type #{transport_type}. Known transport_types are #{transport_types.join(' ' )}")
+            raise NoSuchTransportException.new("No known transport_type #{transport_type}. Known transport_types are '#{transport_types.join(',')}'")
           end
           manager
         end

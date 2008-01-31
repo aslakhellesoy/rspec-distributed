@@ -22,21 +22,20 @@ module Spec
         it "should get the correct transport_manager and call connect" do
           @runner.prepare
         end
-      end
 
-      xit "should call the spec command line with the correct runner and transport type" do
-        
-        job = mock("job")
-        job.should_receive(:libraries).exactly(3).times.and_return([])
-        job.stub!(:environment).and_return({})
-        spec_options = mock('spec_options')
-        ::Spec::Runner::OptionParser.should_receive(:parse).exactly(3).times.with(["--require", "spec/distributed", "--runner", "Spec::Distributed::SlaveExampleGroupRunner:rinda:#{Process::pid}"], STDERR, STDOUT).and_return(spec_options)
+        it "should call the spec command line with the correct runner and transport type" do
+          @options.should_receive(:fork).and_return(false)
+          job = mock("job")
+          job.should_receive(:libraries).times.and_return([])
+          job.stub!(:environment).and_return({})
+          spec_options = mock('spec_options')
+          ::Spec::Runner::OptionParser.should_receive(:parse).with(["--require", "spec/distributed", "--runner", "Spec::Distributed::SlaveExampleGroupRunner:rinda:#{Process::pid}"], STDERR, STDOUT).and_return(spec_options)
 
-        transport_manager.should_receive(:next_job).exactly(3).times.and_return(job)
-        transport_manager.should_receive(:write_job).exactly(3).times
-        runner.should_receive(:keep_running?).exactly(3).times.and_return(true, true, false)
-        ::Spec::Runner::CommandLine.should_receive(:run).exactly(3).times.with(spec_options)
-        runner.run
+          transport_manager.should_receive(:assign_next_job_to).and_return(job)
+          runner.should_receive(:keep_running?).and_return(false)
+          ::Spec::Runner::CommandLine.should_receive(:run).with(spec_options)
+          runner.run
+        end
       end
 
       it "should add any required libraries to the command line" do
@@ -52,8 +51,11 @@ module Spec
       end
 
       it "should set any env vars, and unset them after the run" do
+        @options.should_receive(:fork).and_return(true)
+        
         job = mock("job with environment variables")
         job.should_receive(:environment).twice.and_return({"A" => "A", "B" => "B"})
+
         class << runner
           attr_accessor :current_job
           def run_forked 

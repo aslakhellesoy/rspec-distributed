@@ -87,6 +87,7 @@ module Spec
             @runner.send :publish_result
           end
         end
+
       end
     end
     

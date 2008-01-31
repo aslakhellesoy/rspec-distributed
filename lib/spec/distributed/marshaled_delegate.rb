@@ -10,8 +10,9 @@ module Spec
       end
 
       def marshal_load(target_string)
-        @target = nil
         @dumped_target = target_string
+      ensure
+        @target = nil
       end
 
       def method_missing(method, *args)

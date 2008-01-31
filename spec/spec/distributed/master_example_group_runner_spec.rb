@@ -79,10 +79,21 @@ module Spec
             recording_reporter.should_receive(:replay).twice
             [job1, job2].each do |job|
               job.should_receive(:result).and_return(true)
+              job.should_receive(:slave_exception).and_return(nil)
               job.should_receive(:reporter).and_return(recording_reporter)
             end
             @transport_manager.should_receive(:collect_results).and_yield(job1).and_yield(job2)
             @runner.send(:collect_results)
+          end
+
+          it "should collect jobs with exceptions raised by the slave" do
+            job = mock("job with exception")
+            job.should_receive(:result).and_return(:false)
+            job.should_receive(:slave_exception).and_return(NoMethodError.new("No Method"))
+            
+            @transport_manager.should_receive(:collect_results).and_yield(job)
+            @runner.send(:collect_results)
+            @runner.send(:jobs_with_exceptions).length.should == 1
           end
         end
       end

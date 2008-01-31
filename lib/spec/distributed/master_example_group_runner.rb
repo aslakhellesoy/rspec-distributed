@@ -36,6 +36,11 @@ module Spec
         connect
       end
 
+      def finish
+        super
+        report_jobs_with_exceptions
+      end
+
       def example_groups
         @options.example_groups.reject do |eg|
           eg.spec_path.nil?
@@ -54,8 +59,29 @@ module Spec
         success = true
         transport_manager.collect_results do |job|
           success = success & job.result
-          job.reporter.replay(reporter)
+          if job.slave_exception
+            jobs_with_exceptions << job
+          else
+            job.reporter.replay(reporter)
+          end
         end
+      end
+
+      def report_jobs_with_exceptions
+        if jobs_with_exceptions.length > 0
+          puts "The following jobs had fatal exceptions: "
+          jobs_with_exceptions.each do |job|
+            e = job.slave_exception
+            puts "#{job.spec_path} -e '#{job.example_group_description}'"
+            puts "#{e}"
+            puts e.backtrace
+            puts
+          end
+        end
+      end
+      
+      def jobs_with_exceptions
+        @jobs_with_exceptions ||= []
       end
       
     end

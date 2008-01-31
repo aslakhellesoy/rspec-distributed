@@ -2,6 +2,6 @@
 $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/../lib"))
 
 require 'spec/distributed'
-options = ::Spec::Distributed::RemoteJobRunnerOptionParser.parse
+options = ::Spec::Distributed::JobRunnerOptionParser.parse(ARGV, STDERR, STDOUT)
 exit ::Spec::Distributed::RemoteJobRunner.new(options).run
 

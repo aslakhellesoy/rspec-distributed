@@ -36,8 +36,10 @@ module Spec
       def take_job(template)
         begin
           tuple = @service_ts.take template
+        rescue Interrupt
+          raise
         rescue Exception => e
-          puts "caught Exception #{e}"
+          puts "caught Exception #{e.class}"
           retry
         end
         tuple[2]
@@ -49,12 +51,10 @@ module Spec
         @published_count += 1
       end
 
-      def write_job(job, job_identifier = nil)
-        tuple = default_tuple
-        tuple << job_identifier if job_identifier
-        tuple[2] = job
-        puts "write tuple = #{tuple.inspect}"
-        @service_ts.write tuple
+      def assign_next_job_to(slave_identifier)
+        job = next_job
+        write_job(job, slave_identifier)
+        job
       end
 
       def publish_result(job)
@@ -72,6 +72,15 @@ module Spec
         end
         result
       end
+
+      def write_job(job, job_identifier = nil)
+        tuple = default_tuple
+        tuple << job_identifier if job_identifier
+        tuple[2] = job
+        puts "write tuple = #{tuple.inspect}"
+        @service_ts.write tuple
+      end
+
 
     end
   end

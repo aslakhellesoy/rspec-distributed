@@ -6,6 +6,7 @@ module Spec
         super(options)
         process_args(args)
         read_job
+        set_options
       end
 
       def process_args(args)
@@ -21,6 +22,9 @@ module Spec
       def read_job
         transport_manager.connect
         @job = transport_manager.next_job
+      end
+
+      def set_options
         Hooks.run_slave_hooks(job)
         @options.files << job.spec_path
         @options.examples << job.example_group_description
@@ -28,7 +32,14 @@ module Spec
 
       def load_files(files)
         puts "load_files files = #{files.inspect}"
-        super
+        begin
+          super
+        rescue Exception => e
+          @result = false
+          job.slave_exception = e
+          publish_result
+          raise
+        end
       end
       
       def run
