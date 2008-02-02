@@ -32,6 +32,7 @@ module Spec
           ::Spec::Runner::OptionParser.should_receive(:parse).with(["--require", "spec/distributed", "--runner", "Spec::Distributed::SlaveExampleGroupRunner:rinda:#{Process::pid}"], STDERR, STDOUT).and_return(spec_options)
 
           transport_manager.should_receive(:assign_next_job_to).and_return(job)
+          transport_manager.should_receive(:take_assigned_job).and_return(nil)
           runner.should_receive(:keep_running?).and_return(false)
           ::Spec::Runner::CommandLine.should_receive(:run).with(spec_options)
           runner.run
@@ -64,7 +65,7 @@ module Spec
           end
         end
         runner.current_job = job
-        runner.run_current_job
+        runner.run_assigned_job
         ENV["A"].should be_nil
         ENV["B"].should be_nil
       end

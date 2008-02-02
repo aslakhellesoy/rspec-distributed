@@ -1,3 +1,5 @@
+require 'systemu'
+
 module Spec
   module Distributed
     class RemoteJobRunner
@@ -11,7 +13,8 @@ module Spec
         prepare
         begin
           select_and_assign_job
-          run_current_job
+          run_assigned_job
+          check_job_status
         end while keep_running?
       end
 
@@ -23,7 +26,7 @@ module Spec
         @current_job = transport_manager.assign_next_job_to(slave_identifier)
       end
       
-      def run_current_job
+      def run_assigned_job
         set_environment
         if run_forked?
           run_forked
@@ -32,6 +35,17 @@ module Spec
         end
       ensure
         reset_environment
+      end
+
+      def check_job_status
+        if job = transport_manager.take_assigned_job(slave_identifier, 0)
+          job.success = false
+          job.fatal_failure = true
+          job.slave_stdout = @stdout
+          job.slave_stderr = @stderr
+          job.slave_status = @status
+          transport_manager.publish_result(job)
+        end
       end
 
       def keep_running?
@@ -47,7 +61,10 @@ module Spec
       end
 
       def run_forked
-        system("spec #{spec_options.join(' ')}")
+        @status, @stdout, @stderr = systemu("spec #{spec_options.join(' ')}")
+        puts @status
+        puts @stdout
+        puts @stderr
       end
 
       def parsed_options

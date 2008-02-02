@@ -13,8 +13,8 @@ require 'spec/rake/spectask'
 include FileUtils
 require File.join(File.dirname(__FILE__), 'lib', 'spec', 'distributed', 'version')
 
-AUTHOR = 'Aslak Hellesoy'
-EMAIL = 'aslak.hellesoy@gmail.com', 'bob.cotton@rallydev.com'
+AUTHOR = 'Aslak Hellesoy, Bob Cotton'
+EMAIL = 'aslak.hellesoy@gmail.com', 'bob.cotton@gmail.com'
 DESCRIPTION = "Run RSpec distributed with DRb or Rinda"
 GEM_NAME = 'spec_distributed' # what ppl will type to install your gem
 
@@ -70,7 +70,7 @@ hoe = Hoe.new(GEM_NAME, VERS) do |p|
   
   # == Optional
   p.changes = p.paragraphs_of("History.txt", 0..1).join("\n\n")
-  p.extra_deps = [['rspec', '>= 1.1.1']]     # An array of rubygem dependencies [name, version], e.g. [ ['active_support', '>= 1.3.1'] ]
+  p.extra_deps = [['rspec', '>= 1.1.1'], ['systemu', '>= 1.2.0']     # An array of rubygem dependencies [name, version], e.g. [ ['active_support', '>= 1.3.1'] ]
   #p.spec_extras = {}    # A hash of extra values to set in the gemspec.
 end
 

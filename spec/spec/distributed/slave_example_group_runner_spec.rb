@@ -20,22 +20,7 @@ module Spec
 
       describe "when fetching jobs" do
         before do
-          # all this stuff has to happen at creation time, 
-          # because there is no hook before load_files
-          @job = mock("job")
-          @job.should_receive(:spec_path).and_return("/path/to/spec")
-          @job.should_receive(:example_group_description).and_return("example group description")
-          
-          @job.should_receive(:[]=).any_number_of_times.with(:foo, :bar)
-          Hooks.add_slave_hook do |job|
-            job[:foo] = :bar
-          end
-
-          @files = []
-          @examples = []
-          @options.should_receive(:files).and_return(@files)
-          @options.should_receive(:examples).and_return(@examples)
-
+          @job = mock("job")          
           @runner_and_tuple_args = "rinda:mine,mine"
           RindaTransportManager.should_receive(:new).with("mine,mine").and_return(@transport_manager)
 
@@ -44,16 +29,33 @@ module Spec
 
           @runner = SlaveExampleGroupRunner.new(@options, @runner_and_tuple_args)
         end
-        
-        after do
-          Hooks.reset
+
+        describe "setting options" do
+          it "should run hooks and add files to options" do
+
+            @job.should_receive(:spec_path).and_return("/path/to/spec")
+            @job.should_receive(:example_group_description).and_return("example group description")
+            
+            @job.should_receive(:[]=).any_number_of_times.with(:foo, :bar)
+            Hooks.add_slave_hook do |job|
+              job[:foo] = :bar
+            end
+            
+            @files = []
+            @examples = []
+            @options.should_receive(:files).and_return(@files)
+            @options.should_receive(:examples).and_return(@examples)
+
+            @runner.set_options
+            @files.should == ["/path/to/spec"]
+            @examples.should == ["example group description"]
+          end
+          
+          after do
+            Hooks.reset
+          end
         end
 
-        it "should read a job from the tuplespace, and tell options the file and example name" do
-          @files.should == ["/path/to/spec"]
-          @examples.should == ["example group description"]
-        end
-        
         describe "when preparing" do
           it "should, on prepare, create a dispatcher, with a recording formatter, and set it on options" do
             recording_reporter = mock("recording_reporter")

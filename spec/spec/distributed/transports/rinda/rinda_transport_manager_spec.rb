@@ -29,7 +29,7 @@ module Spec
         before do
           tuple = default_tuple
           tuple[2] = Job.new
-          @service_ts.should_receive(:take).with(default_tuple).and_return(tuple)
+          @service_ts.should_receive(:take).with(default_tuple, nil).and_return(tuple)
         end
         
         it "should take the next job from the tuplespace" do
@@ -91,7 +91,7 @@ module Spec
 
         it "should collect the number of results published" do
           job = mock("job")
-          @service_ts.should_receive(:take).with([:rspec_slave, :job_result, nil, "druby://localhost:12345/"]).exactly(3).times.and_return([:rspec_slave, :job_result, job, "druby://localhost:12345/"])
+          @service_ts.should_receive(:take).with([:rspec_slave, :job_result, nil, "druby://localhost:12345/"], nil).exactly(3).times.and_return([:rspec_slave, :job_result, job, "druby://localhost:12345/"])
 
           count = 0
           @manager.collect_results do |job|
@@ -107,7 +107,7 @@ module Spec
           job = mock("job")
           tuple = default_tuple
           tuple[2] = job
-          @service_ts.should_receive(:take).with(default_tuple).and_return(tuple)
+          @service_ts.should_receive(:take).with(default_tuple, nil).and_return(tuple)
           @service_ts.should_receive(:write).with(tuple << slave_identifier)
           @manager.assign_next_job_to(slave_identifier).should == job
         end

@@ -6,7 +6,6 @@ module Spec
         super(options)
         process_args(args)
         read_job
-        set_options
       end
 
       def process_args(args)
@@ -31,11 +30,13 @@ module Spec
       end
 
       def load_files(files)
+        set_options
         puts "load_files files = #{files.inspect}"
         begin
-          super
+          super(@options.files_to_load)
         rescue Exception => e
           @result = false
+          job.fatal_failure = true
           job.slave_exception = e
           publish_result
           raise

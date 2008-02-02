@@ -59,7 +59,7 @@ module Spec
         success = true
         transport_manager.collect_results do |job|
           success = success & job.result
-          if job.slave_exception
+          if job.fatal_failure
             jobs_with_exceptions << job
           else
             job.reporter.replay(reporter)
@@ -69,12 +69,17 @@ module Spec
 
       def report_jobs_with_exceptions
         if jobs_with_exceptions.length > 0
-          puts "The following jobs had fatal exceptions: "
+          puts "The following jobs had fatal failures: "
           jobs_with_exceptions.each do |job|
             e = job.slave_exception
-            puts "#{job.spec_path} -e '#{job.example_group_description}'"
-            puts "#{e}"
-            puts e.backtrace
+            if e
+              puts "#{job.spec_path} -e '#{job.example_group_description}'"
+              puts "#{e}"
+              puts e.backtrace
+            end
+            puts job.slave_status
+            puts job.slave_stout
+            puts job.stderr
             puts
           end
         end
