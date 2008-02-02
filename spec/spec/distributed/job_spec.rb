@@ -1,5 +1,4 @@
 require File.dirname(__FILE__) + '/../../spec_helper'
-require File.dirname(__FILE__) + '/../../spec_helper_too'
 module Spec
   module Distributed
     describe Job do
