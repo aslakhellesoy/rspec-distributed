@@ -1,64 +1,21 @@
 module Spec
   module Distributed
     class SlaveExampleGroupRunner < ::Spec::Runner::ExampleGroupRunner
-
+      attr_reader :report_dump_filename
       def initialize(options, args="")
         super(options)
-        process_args(args)
-        read_job
-      end
-
-      def process_args(args)
-        (transport_manager, tuple_args) = *split_args(args)
-        manager_class = TransportManager.manager_for(transport_manager)
-        @transport_manager = manager_class.new(tuple_args)
-      end
-      
-      def split_args(args)
-        args.split(/:/)
-      end
-
-      def read_job
-        transport_manager.connect
-        @job = transport_manager.next_job
-      end
-
-      def set_options
-        Hooks.run_slave_hooks(job)
-        @options.files << job.spec_path
-        @options.examples << job.example_group_description
-      end
-
-      def load_files(files)
-        set_options
-        puts "load_files files = #{files.inspect}"
-        begin
-          super(@options.files_to_load)
-        rescue Exception => e
-          @result = false
-          job.fatal_failure = true
-          job.slave_exception = e
-          publish_result
-          raise
+        if args.empty?
+          raise ArgumentError.new("SlaveExampleGroupRunner requires a temp filename for dumping the RecordingReporter")
         end
-      end
-      
-      def run
-        @result = super
+        @report_dump_filename = args
       end
 
       protected
-      attr_reader :transport_manager, :job
-
       # do not call 'super' for either prepare or finish.
       # is resets the bookkeeping on the master
       def prepare
-        @recording_reporter = RecordingReporter.new # need a watermark?
-        @options.reporter = Dispatcher.new(@recording_reporter, reporter)
-        example_groups.each do |eg|
-          next unless eg.description_options
-          eg.description_options[:remote_example_group_object_id] = job.example_group_object_id
-        end
+        insert_recording_reporter
+        link_example_groups
       end
 
       def finish
@@ -66,9 +23,21 @@ module Spec
       end
 
       def publish_result
-        job.result = @result
-        job.reporter = @recording_reporter
-        transport_manager.publish_result(job)
+        File.open(report_dump_filename, "w") do |f|
+          Marshal.dump(@recording_reporter, f)
+        end
+      end
+
+      def insert_recording_reporter
+        @recording_reporter = RecordingReporter.new # TODO: need a watermark?
+        @options.reporter = Dispatcher.new(@recording_reporter, reporter)
+      end
+
+      def link_example_groups
+        example_groups.each do |eg|
+          next unless eg.description_options
+          eg.description_options[:example_group_object_id] = ENV['REMOTE_EXAMPLE_GROUP_OBJECT_ID'].to_i
+        end
       end
     end
 

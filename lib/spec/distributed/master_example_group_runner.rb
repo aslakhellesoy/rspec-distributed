@@ -71,14 +71,14 @@ module Spec
         if jobs_with_exceptions.length > 0
           puts "The following jobs had fatal failures: "
           jobs_with_exceptions.each do |job|
-            e = job.slave_exception
+            e = job.exception
             if e
               puts "#{job.spec_path} -e '#{job.example_group_description}'"
               puts "#{e}"
               puts e.backtrace
             end
-            puts job.slave_status
-            puts job.slave_stout
+            puts job.status
+            puts job.stout
             puts job.stderr
             puts
           end

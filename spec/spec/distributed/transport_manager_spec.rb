@@ -6,14 +6,12 @@ module Spec
 
       it "should force subclasses to implement #transport_type" do
         Class.new(TransportManager)
-        lambda { TransportManager.manager_for("foo") }.should raise_error(NoSuchTransportException, /No known transport_type/)
+        lambda { TransportManager.manager_for("unknown") }.should raise_error(NoSuchTransportException, /No known transport_type/)
       end
 
       it "should map distribution methods to classes" do
         c = Class.new(TransportManager) do
-          def self.transport_type
-            "foo"
-          end
+          known_as "foo"
         end
         TransportManager.manager_for("foo").should == c
         TransportManager.manager_for("rinda").should == RindaTransportManager

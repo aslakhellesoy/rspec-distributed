@@ -3,15 +3,20 @@ module Spec
     class NoSuchTransportException < ArgumentError; end
     class TransportManager
       class << self
-
+        attr_reader :transport_type 
         def inherited(klass)
           @subclasses ||= []
           @subclasses << klass
         end
 
+        def known_as(type)
+          @transport_type = type
+        end
+
         def subclasses_by_type
           @subclasses.inject({}) do |hash, klass|
             begin
+              next hash unless klass.transport_type
               hash[klass.transport_type] = klass
             rescue NoMethodError => e
               # munch
@@ -30,7 +35,8 @@ module Spec
         end
       end
 
-      
+      def initialize(args)
+      end
     end
   end
 end

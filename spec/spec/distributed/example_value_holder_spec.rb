@@ -11,7 +11,7 @@ module Spec
         @example.should_receive(:description).twice.and_return("description")
 
         @example_group.should_receive(:object_id).and_return(7654321)
-        @example_group.should_receive(:description_options).and_return({:remote_example_group_object_id => 7654321})
+        @example_group.should_receive(:description_options).and_return({:example_group_object_id => 7654321})
         @example_group.should_receive(:examples).and_return([@example])
 
         @rspec_options = mock("rspec_options")
@@ -35,7 +35,7 @@ module Spec
         @example = mock("example")
 
         @example_group.should_receive(:object_id).and_return(7654321)
-        @example_group.should_receive(:description_options).and_return({:remote_example_group_object_id => 7654321})
+        @example_group.should_receive(:description_options).and_return({:example_group_object_id => 7654321})
 
         @rspec_options = mock("rspec_options")
         @rspec_options.should_receive(:example_groups).and_return([@example_group])

@@ -44,6 +44,27 @@ module Spec
         @out.rewind
         @out.read.should match(/Usage: remote_job_runner \[options\]/m)
       end
+
+    end
+
+    describe Options do
+      attr_reader :options
+      before do
+        @out = StringIO.new
+        @err = StringIO.new
+        @options = Options.new(@out, @err)
+      end
+
+      it "should return an instance of the transport_manager" do
+        options.transport_type = "rinda"
+        options.transport_manager.should be_instance_of(RindaTransportManager)
+      end
+
+      it "should parse options to the transport_manager" do
+        options.transport_type = "rinda:1,2:3"
+        RindaTransportManager.should_receive(:new).with("1,2:3")
+        options.transport_manager
+      end
     end
     
   end

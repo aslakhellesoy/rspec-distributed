@@ -8,7 +8,7 @@ module Spec
       before do
         @example_group = mock("example_group")
         @example_group.should_receive(:object_id).twice.and_return(654321)
-        @example_group.should_receive(:description_options).and_return({:remote_example_group_object_id => 654321})
+        @example_group.should_receive(:description_options).and_return({:example_group_object_id => 654321})
         
         @rspec_options = mock("rspec_options")
         @rspec_options.should_receive(:example_groups).and_return([@example_group])

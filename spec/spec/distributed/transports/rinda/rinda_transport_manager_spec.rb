@@ -101,19 +101,6 @@ module Spec
         end
       end
 
-      describe "when assigning a job to a slave" do
-        it "should take the next job, and write a new tuple with the slave id" do
-          slave_identifier = "hostname_port"
-          job = mock("job")
-          tuple = default_tuple
-          tuple[2] = job
-          @service_ts.should_receive(:take).with(default_tuple, nil).and_return(tuple)
-          @service_ts.should_receive(:write).with(tuple << slave_identifier)
-          @manager.assign_next_job_to(slave_identifier).should == job
-        end
-        
-      end
-      
     end
   end
 end

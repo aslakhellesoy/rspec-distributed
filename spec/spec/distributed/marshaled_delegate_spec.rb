@@ -41,7 +41,7 @@ module Spec
         $dump_called.should == true
       end
 
-      it "should not un-marshal the target on unload" do
+      it "should not load the target on unload" do
         $dump_called = false
         $load_called = false
         dump = Marshal.dump(delegate)
@@ -72,7 +72,6 @@ module Spec
         d2 = Marshal.load(Marshal.dump(d))
         d2.bar.should == "bar1"
       end
-
     end
   end
 end

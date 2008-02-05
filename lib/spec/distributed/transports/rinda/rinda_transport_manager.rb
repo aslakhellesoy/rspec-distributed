@@ -7,9 +7,7 @@ module Spec
       include TupleArgs
       include RindaConnection
 
-      def self.transport_type
-        "rinda"
-      end
+      known_as "rinda"
 
       def initialize(tuple_args="")
         process_tuple_args(tuple_args)
@@ -22,23 +20,6 @@ module Spec
         take_job default_tuple
       end
       
-      def assign_next_job_to(slave_identifier)
-        job = next_job
-        write_job(job, slave_identifier)
-        job
-      end
-
-      def take_assigned_job(slave_identifier, wait = nil)
-        tuple = default_tuple << slave_identifier
-        puts "tuple = #{tuple.inspect}"
-        begin
-          take_job tuple, wait
-        rescue Rinda::RequestExpiredError => e
-          puts "No job"
-          nil
-        end
-      end
-
       def publish_result(job)
         tuple = result_tuple(job, job.return_path)
         @service_ts.write tuple

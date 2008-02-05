@@ -12,10 +12,14 @@ module Spec
       end
 
       def apply_changeset(diff)
+        puts diff
         IO.popen("patch -p0", "w+") do |patch|
           patch.puts diff
           patch.close_write
           patch.readlines
+        end
+        File.open("last_patch.txt", "w") do |f|
+          f << diff
         end
       end
 
@@ -33,6 +37,13 @@ module Spec
       end
 
       def revert
+        if File.exists?('last_patch.txt')
+          `egrep '^Index:' last_patch.txt`.split(/\n/).each do |line|
+            file = line.match(/\AIndex: (.*)/)[1]
+            FileUtils.rm_rf file.strip
+          end
+          FileUtils.rm 'last_patch.txt'
+        end
         `svn revert -R .`
       end
 
@@ -62,7 +73,7 @@ module Spec
       # make sure your new files are 'svn add'ed
       module DetectSvnRev
         Spec::Distributed::Hooks.add_master_hook do |job|
-          job.add_library 'spec/distributed/hooks/svn_update_hooks'
+          job.add_hook_library 'spec/distributed/hooks/svn_update_hooks'
           
           svn = UpdateSvn.new
           job.master_svn_rev = svn.local_revision

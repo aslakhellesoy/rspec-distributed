@@ -14,11 +14,33 @@ module Spec
       end
 
       def transport_type_valid?
+        transport_type && transport_manager
+      end
+
+      def transport_manager
+        @transport_manager ||= create_transport_manager
+      end
+
+      protected
+      def create_transport_manager
         begin
-          TransportManager.manager_for(transport_type)
+          type, options = parse_transport_manager_options
+          @transport_manager = TransportManager.manager_for(type).new(options)
         rescue NoSuchTransportException => e
-          false
+          nil
         end
+      end
+
+      def parse_transport_manager_options
+        start = transport_type.index(':')
+        if start
+          type = transport_type[0...start]
+          options = start ? transport_type[start +1..-1] : ""
+        else
+          type = transport_type
+          options = ""
+        end
+        return type, options
       end
     end
     
