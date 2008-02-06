@@ -69,7 +69,9 @@ module Spec
           runner.recording_reporter = ["recording_reporter"]
           runner.send :publish_result
           tempfile.open
-          Marshal.load(tempfile).should == ["recording_reporter"]
+          reporter = Marshal.load(tempfile)
+          reporter.should be_instance_of(MarshaledDelegate)
+          reporter.should == ["recording_reporter"]
         end
       end
     end

@@ -5,6 +5,8 @@ README.txt
 Rakefile
 bin/job_runner
 examples/slooow_examples.rb
+integration_spec/spec/distributed/transports/transport_manager_spec.rb
+integration_spec/spec_helper.rb
 lib/spec/distributed.rb
 lib/spec/distributed/example_group_value_holder.rb
 lib/spec/distributed/example_value_holder.rb
@@ -21,6 +23,7 @@ lib/spec/distributed/remote_job_runner_option_parser.rb
 lib/spec/distributed/slave_example_group_runner.rb
 lib/spec/distributed/transport_manager.rb
 lib/spec/distributed/transports.rb
+lib/spec/distributed/transports/local/local_transport_manager.rb
 lib/spec/distributed/transports/rinda/rinda_connection.rb
 lib/spec/distributed/transports/rinda/rinda_transport_manager.rb
 lib/spec/distributed/transports/rinda/tuple_args.rb

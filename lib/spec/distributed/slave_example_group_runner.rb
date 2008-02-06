@@ -23,8 +23,9 @@ module Spec
       end
 
       def publish_result
-        File.open(report_dump_filename, "w") do |f|
-          Marshal.dump(@recording_reporter, f)
+        File.open(report_dump_filename, "w") do |file|
+          delegate = MarshaledDelegate.new(@recording_reporter)
+          Marshal.dump(delegate, file)
         end
       end
 
