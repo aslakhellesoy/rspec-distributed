@@ -13,11 +13,16 @@ module Spec
       def connect(start)
       end
 
-      def next_job 
-        jobs.pop
+      def next_job
+        job = jobs.pop
+        while job.nil?
+          sleep 1
+          job = jobs.pop
+        end 
       end
 
-      def publish_job(job)
+      def publish_job(job, path = return_path)
+        job.return_path = path
         jobs.push job
       end
 

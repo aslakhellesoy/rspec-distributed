@@ -14,7 +14,7 @@ module Spec
 
         it "should put and get results" do
           result_count = 0
-          job = Job.create_job(example_group, nil, manager.return_path)
+          job = Job.create_job(example_group)
 
           2.times do
             manager.publish_job(job)

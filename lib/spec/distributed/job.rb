@@ -8,7 +8,7 @@ module Spec
     # marshal_dump etc
     class Job < OpenStruct
       class << self
-        def create_job(example_group, options, return_path)
+        def create_job(example_group)
           path = example_group.spec_path
           spec_path = strip_line_number(path)
 
@@ -16,8 +16,7 @@ module Spec
 
           Job.new(:spec_path => relative_path,
                   :example_group_description => example_group.description,
-                  :example_group_object_id => example_group.object_id,
-                  :return_path => return_path)
+                  :example_group_object_id => example_group.object_id)
         end
         
         def strip_line_number(spec_path)

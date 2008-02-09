@@ -26,9 +26,10 @@ module Spec
       end
 
       # master protocol
-      def publish_job(job, job_identifier = nil)
+      def publish_job(job, path = return_path)
+        job.return_path = path
         marshaled_delegate = MarshaledDelegate.new(job)
-        write_job(marshaled_delegate, job_identifier)
+        write_job(marshaled_delegate)
         @published_count += 1
       end
       
@@ -58,9 +59,8 @@ module Spec
         tuple[2]
       end
 
-      def write_job(job, job_identifier = nil)
+      def write_job(job)
         tuple = default_tuple
-        tuple << job_identifier if job_identifier
         tuple[2] = job
         @service_ts.write tuple
       end

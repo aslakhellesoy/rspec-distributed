@@ -46,24 +46,26 @@ module Spec
         before do
           @example_group = mock('example group')
           @options = mock('options')
-          
           @job = mock("job")
           @tuple = default_tuple
           @tuple[2] = @job
         end
 
-        it "should send the Job to run" do
+        it "should set the return path on the job, and write the job" do
+          DRb.should_receive(:uri).and_return("druby://")
           @service_ts.should_receive(:write) do |t|
             t[2].should == @tuple[2]
           end
+          @job.should_receive(:return_path=)
           @manager.publish_job(@job)
         end
-
-        it "should add a unique identifier to the tuple" do
+        
+        it "should set the return path on the job, to the given value" do
           @service_ts.should_receive(:write) do |t|
-            t.last.should == "12345"
+            t[2].should == @tuple[2]
           end
-          @manager.publish_job(@job, "12345")
+          @job.should_receive(:return_path=).with("return_path")
+          @manager.publish_job(@job, "return_path")
         end
 
       end
@@ -82,7 +84,7 @@ module Spec
         before do
           example_group = mock("example_group")
           @service_ts.stub!(:write)
-          job = mock("job")
+          job = OpenStruct.new
           DRb.should_receive(:uri).any_number_of_times.and_return("druby://localhost:12345/")
           3.times do
             @manager.publish_job(job)

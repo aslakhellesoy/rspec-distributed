@@ -12,12 +12,11 @@ module Spec
 
           Dir.should_receive(:pwd).and_return("/a/b/c")
           
-          job = Job.create_job(@example_group, mock("options"), "return_path")
+          job = Job.create_job(@example_group)
           
           job.spec_path.should == "d/d_spec.rb"
           job.example_group_description.should == "example group description"
           job.example_group_object_id.should == 54321
-          job.return_path.should == "return_path"
         end
       end
       

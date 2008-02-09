@@ -49,7 +49,7 @@ module Spec
 
       def publish_example_groups
         example_groups.each do |example_group|
-          job = Job.create_job(example_group, @options, transport_manager.return_path)
+          job = Job.create_job(example_group)
           Hooks.run_master_hooks(job)
           transport_manager.publish_job(job)
         end
