@@ -8,5 +8,5 @@ describe "Running a spec job" do
   end
   
   # Use the Spec CommandLine to start a job with the master runner
-  # ensure something happened
+  # ensure something happened, not sure what 
 end
